@@ -40,7 +40,8 @@ public class RestTest {
     private static final String EAN_ALT = "9783827317100";
     private static final String URL_BOOKS_80 = "http://localhost:8080/shareit/media/books/";
     private static final String URL_BOOKS_84 = "http://localhost:8084/shareit/media/books/";
-    private static final String URL_DISCS = "http://localhost:8080/shareit/media/discs/";
+    private static final String URL_DISCS_80 = "http://localhost:8080/shareit/media/discs/";
+    private static final String URL_DISCS_84 = "http://localhost:8080/shareit/media/discs/";
     private static final String URL_COPIES_BOOKS = "http://localhost:8080/shareit/copy/books";
     private static final String URL_COPIES_DISCS = "http://localhost:8080/shareit/copy/discs";
     private static final String URL_COPIES = "http://localhost:8080/shareit/copy/";
@@ -138,6 +139,51 @@ public class RestTest {
         assertEquals(200, response.getStatusLine().getStatusCode());
 
         HttpGet request = new HttpGet(URL_BOOKS_84 + token);
+        HttpResponse response2 = client.execute(request);
+        System.out.println("Ergebnis:");
+        System.out.println(EntityUtils.toString(response2.getEntity()));
+        assertEquals(200, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testGetDiscs() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+        JSONObject disc2 = new JSONObject();
+        disc2.put("title", TITLE_ALT);
+        disc2.put("barcode", EAN_ALT);
+        disc2.put("director", NAME_ALT);
+        disc2.put("fsk", 18);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstDisc = new HttpPost(URL_DISCS_80);
+        HttpPost addSecondDisc = new HttpPost(URL_DISCS_80);
+
+        addFirstDisc.setEntity(new StringEntity(disc.toString()));
+        addSecondDisc.setEntity(new StringEntity(disc2.toString()));
+
+        addFirstDisc.addHeader("content-Type", "application/json");
+        addSecondDisc.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstDisc);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        response = client.execute(addSecondDisc);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        HttpGet request = new HttpGet(URL_DISCS_84 + token);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
         System.out.println(EntityUtils.toString(response2.getEntity()));

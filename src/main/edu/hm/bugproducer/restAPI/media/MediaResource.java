@@ -31,15 +31,26 @@ public class MediaResource {
     public Response getBooks(@PathParam("token") String token) throws IOException {
         System.out.println("getBooks");
         HttpEntity httpEntityBooks = mediaService.getBooks(token);
-
         System.err.println("HTTP: " + httpEntityBooks);
-        // parsing JSON
-
         return Response
                 .status(RESPONSECODE)
                 .entity(httpEntityBooks.getContent())
                 .build();
     }
+
+    @GET
+    @Path("/discs/{token}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDiscs(@PathParam("token") String token) throws IOException {
+        System.out.println("getDiscs");
+        HttpEntity httpEntityDiscs = mediaService.getDiscs(token);
+        System.err.println("HTTP: " + httpEntityDiscs);
+        return Response
+                .status(RESPONSECODE)
+                .entity(httpEntityDiscs.getContent())
+                .build();
+    }
+
 
     @POST
     @Path("/discs/")
@@ -62,18 +73,6 @@ public class MediaResource {
 
         return Response
                 .status(result.getCode())
-                .build();
-    }
-
-    @GET
-    @Path("/discs/")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getDiscs() {
-        System.out.println("getDiscs");
-        List<Disc> discList = mediaService.getDiscs();
-        return Response
-                .status(RESPONSECODE)
-                .entity(discList)
                 .build();
     }
 

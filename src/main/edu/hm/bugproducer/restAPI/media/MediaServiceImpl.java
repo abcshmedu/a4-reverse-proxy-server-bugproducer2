@@ -21,6 +21,7 @@ import static edu.hm.bugproducer.restAPI.MediaServiceResult.*;
 import static edu.hm.bugproducer.restAPI.MediaServiceResult.MSR_NOT_FOUND;
 import static edu.hm.bugproducer.restAPI.MediaServiceResult.MSR_OK;
 
+@SuppressWarnings("Duplicates")
 public class MediaServiceImpl implements MediaService {
 
 
@@ -102,21 +103,42 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public HttpEntity getBooks(String token) throws IOException {
-        System.out.println("gewtBooks: start");
+        System.out.println("getBooks: start");
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet verify = new HttpGet(URLVERIFY + token);
         HttpResponse authResponse = client.execute(verify);
 
-        if (authResponse.getStatusLine().getStatusCode()==MSR_OK.getCode()){
+        if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
             HttpGet request = new HttpGet(URL_BOOKS);
             HttpResponse shareItResponse = client.execute(request);
-            if (shareItResponse.getStatusLine().getStatusCode()==MSR_OK.getCode()){
+            if (shareItResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
                 return shareItResponse.getEntity();
             }
         }
-        System.out.println("gewtBooks: end");
+        System.out.println("getBooks: end");
         return authResponse.getEntity();
     }
+
+    @Override
+    public HttpEntity getDiscs(String token) throws IOException {
+        System.out.println("getDiscs: start");
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet verify = new HttpGet(URLVERIFY + token);
+        HttpResponse authResponse = client.execute(verify);
+
+        if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
+            HttpGet request = new HttpGet(URL_DISCS);
+            HttpResponse shareItResponse = client.execute(request);
+            if (shareItResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
+                return shareItResponse.getEntity();
+            }
+        }
+        System.out.println("getDiscs: end");
+        return authResponse.getEntity();
+    }
+
+    // ------------------
+    //toDo alles ab hier!
 
     @Override
     public Pair<MediaServiceResult, Book> getBook(String isbn) {
@@ -144,14 +166,6 @@ public class MediaServiceImpl implements MediaService {
             }
         }
         return myResult;
-    }
-
-    @Override
-    public List<Disc> getDiscs() {
-
-
-
-        return discs;
     }
 
     //todo Was passiert bei ungültiger ISBN

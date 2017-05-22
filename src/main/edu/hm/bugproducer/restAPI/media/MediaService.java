@@ -21,11 +21,11 @@ public interface MediaService {
 
     HttpEntity getBooks(String token) throws IOException;
 
+    HttpEntity getDiscs(String token)throws IOException;
+
     Pair<MediaServiceResult, Book> getBook(String isbn);
 
     Pair<MediaServiceResult, Disc> getDisc(String barcode);
-
-    List<Disc> getDiscs();
 
     MediaServiceResult updateBook(String isbn, Book book);
 
