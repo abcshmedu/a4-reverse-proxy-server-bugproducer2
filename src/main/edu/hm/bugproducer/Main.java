@@ -1,7 +1,5 @@
 package edu.hm.bugproducer;
 
-import org.eclipse.jetty.server.*;
-
 /**
  * Start the application without an AppServer like tomcat.
  *
@@ -20,7 +18,6 @@ public class Main {
     public static void main(String... args) throws Exception {
         JettyStarter jettyStarter = new JettyStarter();
         jettyStarter.startJetty();
-
     }
 
 }
