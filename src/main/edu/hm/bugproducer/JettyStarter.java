@@ -11,7 +11,7 @@ import org.eclipse.jetty.webapp.*;
 public class JettyStarter{
 
     public static final String APP_URL = "/";
-    public static final int PORT = 8082;
+    public static final int PORT = 8084;
     public static final String WEBAPP_DIR = "./src/main/webapp/";
 
 
