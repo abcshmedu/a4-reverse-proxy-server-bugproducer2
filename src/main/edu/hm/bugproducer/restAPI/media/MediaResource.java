@@ -90,7 +90,7 @@ public class MediaResource {
                 .build();
     }
 */
-    @GET
+    /*@GET
     @Path("/discs/{barcode}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDisc(@PathParam("barcode") String barcode) {
@@ -101,7 +101,7 @@ public class MediaResource {
                 .status(myResult.getKey().getCode())
                 .entity(myResult.getValue())
                 .build();
-    }
+    }*/
 
     @PUT
     @Path("/books/{isbn}")
