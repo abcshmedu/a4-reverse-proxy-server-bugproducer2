@@ -26,9 +26,9 @@ public class MediaResource {
     }
 
     @GET
-    @Path("/books/{token}")
+    @Path("/books/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getBooks(@PathParam("token") String token) throws IOException {
+    public Response getBooks(@QueryParam("token") String token) throws IOException {
         System.out.println("getBooks");
         HttpEntity httpEntityBooks = mediaService.getBooks(token);
         System.err.println("HTTP: " + httpEntityBooks);
@@ -39,9 +39,9 @@ public class MediaResource {
     }
 
     @GET
-    @Path("/discs/{token}")
+    @Path("/discs/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDiscs(@PathParam("token") String token) throws IOException {
+    public Response getDiscs(@QueryParam("token") String token) throws IOException {
         System.out.println("getDiscs");
         HttpEntity httpEntityDiscs = mediaService.getDiscs(token);
         System.err.println("HTTP: " + httpEntityDiscs);

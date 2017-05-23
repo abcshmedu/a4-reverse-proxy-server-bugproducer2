@@ -6,6 +6,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
@@ -17,6 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +70,7 @@ public class RestTest {
         jettyStarter = new JettyStarter();
         jettyStarter.startJetty();
 
+        deleteAllLists();
     }
 
     @After
@@ -138,7 +142,7 @@ public class RestTest {
         response = client.execute(addSecondBook);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
-        HttpGet request = new HttpGet(URL_BOOKS_84 + token);
+        HttpGet request = getHttpGet(token,"/shareit/media/books",8084);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
         System.out.println(EntityUtils.toString(response2.getEntity()));
@@ -183,11 +187,44 @@ public class RestTest {
         response = client.execute(addSecondDisc);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
-        HttpGet request = new HttpGet(URL_DISCS_84 + token);
+        HttpGet request = getHttpGet(token,"/shareit/media/discs",8084);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
         System.out.println(EntityUtils.toString(response2.getEntity()));
         assertEquals(200, response2.getStatusLine().getStatusCode());
+    }
+
+
+    private HttpGet getHttpGet(String token, String path, int port) {
+        URIBuilder builder = new URIBuilder();
+        builder.setScheme("http").setHost("localhost")
+                .setPort(port)
+                .setPath(path)
+                .setParameter("token", token);
+
+        URI uri = null;
+        try {
+            uri = builder.build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return new HttpGet(uri);
+    }
+
+    private void deleteAllLists() throws IOException {
+        HttpClient client = HttpClientBuilder.create().build();
+        URIBuilder builder = new URIBuilder();
+        builder.setScheme("http").setHost("localhost")
+                .setPort(8080)
+                .setPath("/shareit/media/reset");
+
+        URI uri = null;
+        try {
+            uri = builder.build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        client.execute(new HttpGet(uri));
     }
 
 }
