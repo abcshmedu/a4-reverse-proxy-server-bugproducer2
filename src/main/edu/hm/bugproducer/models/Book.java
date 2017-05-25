@@ -6,7 +6,9 @@ public class Book extends Medium {
     private String isbn;
 
     public Book() {
-        super("No Name");
+        super("");
+        this.author = "";
+        this.isbn = "";
     }
 
     public Book(String author, String isbn, String title) {

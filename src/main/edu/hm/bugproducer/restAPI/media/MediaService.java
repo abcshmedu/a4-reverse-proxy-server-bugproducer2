@@ -5,6 +5,7 @@ import edu.hm.bugproducer.models.Disc;
 import edu.hm.bugproducer.restAPI.MediaServiceResult;
 import javafx.util.Pair;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 
 public interface MediaService {
 
-    MediaServiceResult addBook(Book book);
+    HttpResponse addBook(String token, Book book) throws IOException;
 
     MediaServiceResult addDisc(Disc disc);
 

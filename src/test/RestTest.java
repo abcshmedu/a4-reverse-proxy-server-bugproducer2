@@ -1,5 +1,6 @@
 import edu.hm.bugproducer.JettyStarter;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -44,7 +45,7 @@ public class RestTest {
     private static final String URL_BOOKS_80 = "http://localhost:8080/shareit/media/books/";
     private static final String URL_BOOKS_84 = "http://localhost:8084/shareit/media/books/";
     private static final String URL_DISCS_80 = "http://localhost:8080/shareit/media/discs/";
-    private static final String URL_DISCS_84 = "http://localhost:8080/shareit/media/discs/";
+    private static final String URL_DISCS_84 = "http://localhost:8084/shareit/media/discs/";
     private static final String URL_COPIES_BOOKS = "http://localhost:8080/shareit/copy/books";
     private static final String URL_COPIES_DISCS = "http://localhost:8080/shareit/copy/discs";
     private static final String URL_COPIES = "http://localhost:8080/shareit/copy/";
@@ -122,7 +123,6 @@ public class RestTest {
 
         // LOGIN
         HttpResponse loginResponse = login();
-
         assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
 
         String token = IOUtils.toString(loginResponse.getEntity().getContent());
@@ -142,7 +142,7 @@ public class RestTest {
         response = client.execute(addSecondBook);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
-        HttpGet request = getHttpGet(token,"/shareit/media/books",8084);
+        HttpGet request = getHttpGet(token,"/books",8084);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
         System.out.println(EntityUtils.toString(response2.getEntity()));
@@ -187,11 +187,39 @@ public class RestTest {
         response = client.execute(addSecondDisc);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
-        HttpGet request = getHttpGet(token,"/shareit/media/discs",8084);
+        HttpGet request = getHttpGet(token,"/discs",8084);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
         System.out.println(EntityUtils.toString(response2.getEntity()));
         assertEquals(200, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testCreateBooks() throws IOException {
+
+
+
+        JSONObject book = new JSONObject();
+        //book.put("title", TITLE);
+        //book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = getHttpPost(token,"/books",8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(book.toString()));
+
+
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
 
@@ -199,8 +227,7 @@ public class RestTest {
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http").setHost("localhost")
                 .setPort(port)
-                .setPath(path)
-                .setParameter("token", token);
+                .setPath("/shareit/media/"+token+path);
 
         URI uri = null;
         try {
@@ -209,6 +236,21 @@ public class RestTest {
             e.printStackTrace();
         }
         return new HttpGet(uri);
+    }
+
+    private HttpPost getHttpPost(String token, String path, int port) {
+        URIBuilder builder = new URIBuilder();
+        builder.setScheme("http").setHost("localhost")
+                .setPort(port)
+                .setPath("/shareit/media/"+token+path);
+
+        URI uri = null;
+        try {
+            uri = builder.build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return new HttpPost(uri);
     }
 
     private void deleteAllLists() throws IOException {

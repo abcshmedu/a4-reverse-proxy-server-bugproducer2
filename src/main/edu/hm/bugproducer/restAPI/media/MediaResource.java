@@ -6,6 +6,7 @@ import edu.hm.bugproducer.models.Disc;
 import edu.hm.bugproducer.restAPI.MediaServiceResult;
 import javafx.util.Pair;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
@@ -26,9 +27,9 @@ public class MediaResource {
     }
 
     @GET
-    @Path("/books/")
+    @Path("{token}/books/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getBooks(@QueryParam("token") String token) throws IOException {
+    public Response getBooks(@PathParam("token") String token) throws IOException {
         System.out.println("getBooks");
         HttpEntity httpEntityBooks = mediaService.getBooks(token);
         System.err.println("HTTP: " + httpEntityBooks);
@@ -39,9 +40,9 @@ public class MediaResource {
     }
 
     @GET
-    @Path("/discs/")
+    @Path("{token}/discs/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDiscs(@QueryParam("token") String token) throws IOException {
+    public Response getDiscs(@PathParam("token") String token) throws IOException {
         System.out.println("getDiscs");
         HttpEntity httpEntityDiscs = mediaService.getDiscs(token);
         System.err.println("HTTP: " + httpEntityDiscs);
@@ -64,15 +65,15 @@ public class MediaResource {
     }
 
     @POST
-    @Path("/books/")
+    @Path("{token}/books/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createBooks(Book book) {
+    public Response createBooks(@PathParam("token") String token, Book book) throws IOException {
         //System.out.println("createBooks" + book.getAuthor());
         //ToDo Change Name
-        MediaServiceResult result = mediaService.addBook(book);
+        HttpResponse result = mediaService.addBook(token,book);
 
         return Response
-                .status(result.getCode())
+                .status(result.getStatusLine().getStatusCode())
                 .build();
     }
 

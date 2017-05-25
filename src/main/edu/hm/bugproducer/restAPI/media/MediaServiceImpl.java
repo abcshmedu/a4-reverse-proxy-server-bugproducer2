@@ -1,21 +1,30 @@
 package edu.hm.bugproducer.restAPI.media;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import edu.hm.bugproducer.Utils.Isbn;
 import edu.hm.bugproducer.models.Book;
 import edu.hm.bugproducer.models.Disc;
 import edu.hm.bugproducer.restAPI.MediaServiceResult;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import javafx.util.Pair;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.validator.routines.checkdigit.EAN13CheckDigit;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 import static edu.hm.bugproducer.restAPI.MediaServiceResult.*;
 import static edu.hm.bugproducer.restAPI.MediaServiceResult.MSR_NOT_FOUND;
@@ -33,39 +42,81 @@ public class MediaServiceImpl implements MediaService {
     public static List<Disc> discs = new ArrayList<>();
 
     @Override
-    public MediaServiceResult addBook(Book book) {
-        MediaServiceResult mediaServiceResult = MSR_INTERNAL_SERVER_ERROR;
+    public HttpResponse addBook(String token, Book book) throws IOException {
+        System.out.println("addBooks: start");
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet verify = new HttpGet(URLVERIFY + token);
+        HttpResponse authResponse = client.execute(verify);
 
-        System.out.println("Ich füge ein Wunderbares Buch hinzu !!!!");
+        if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
 
-        if (book == null) {
-            //todo Author und ISBN auf Null prüfen!!! DAS gleiche brauchen wir auch bei der Disc
-            mediaServiceResult = MSR_NO_CONTENT;
-        } else if (book.getAuthor().isEmpty() || book.getTitle().isEmpty() || book.getIsbn().isEmpty()) {
-            mediaServiceResult = MSR_BAD_REQUEST;
-        } else if (!Isbn.isValid(book.getIsbn())) {
-            mediaServiceResult = MSR_BAD_REQUEST;
-        } else {
-            if (books.isEmpty()) {
-                mediaServiceResult = MSR_OK;
-                books.add(book);
-            } else {
+            String jwtString = IOUtils.toString(authResponse.getEntity().getContent());
 
-                ListIterator<Book> lir = books.listIterator();
 
-                while (lir.hasNext()) {
-                    if (lir.next().getIsbn().equals(book.getIsbn())) {
-                        mediaServiceResult = MSR_BAD_REQUEST;
-                    } else {
-                        lir.add(book);
-                        mediaServiceResult = MSR_OK;
-                    }
-                }
+            Jwt jwt = Jwts.parser()
+                    .setSigningKey("secret".getBytes("UTF-8"))
+                    .parseClaimsJws(jwtString);
+
+
+
+           String user = Jwts.parser()
+                    .setSigningKey("secret".getBytes("UTF-8"))
+                    .parseClaimsJws(jwtString).getBody().getSubject();
+
+            Map<String, Object> headerClaims = new HashMap();
+            headerClaims.put("type", Header.JWT_TYPE);
+            String compactJws = null;
+
+            ObjectWriter jbook = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = jbook.writeValueAsString(book);
+
+            try {
+                compactJws = Jwts.builder()
+                        .setSubject(user)
+                        .claim("book",json)
+                        .setHeader(headerClaims)
+                        .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
+                        .compact();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
+
+
+            HttpPost addBook = new HttpPost(URL_BOOKS);
+
+            addBook.setEntity(new StringEntity(compactJws));
+
+         /*Jwts.parser()
+                    .setSigningKey("secret".getBytes("UTF-8"))
+                    .parseClaimsJws(compactJws).getBody().getSubject());*/
+
+
+            addBook.addHeader("content-Type", "application/json");
+            HttpResponse response =client.execute(addBook);
+
+            System.out.println(response.getStatusLine().getStatusCode());
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
-        return mediaServiceResult;
+        return authResponse;
+
+
     }
+
+
+
 
     @Override
     public MediaServiceResult addDisc(Disc disc) {
@@ -182,4 +233,6 @@ public class MediaServiceImpl implements MediaService {
 
         return mediaServiceResult;
     }
+
+
 }
