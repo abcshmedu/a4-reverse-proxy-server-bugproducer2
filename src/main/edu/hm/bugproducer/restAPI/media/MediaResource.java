@@ -46,6 +46,7 @@ public class MediaResource {
         System.out.println("getDiscs");
         HttpEntity httpEntityDiscs = mediaService.getDiscs(token);
         System.err.println("HTTP: " + httpEntityDiscs);
+
         return Response
                 .status(RESPONSECODE)
                 .entity(httpEntityDiscs.getContent())

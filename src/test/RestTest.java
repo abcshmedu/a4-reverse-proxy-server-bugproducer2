@@ -127,8 +127,8 @@ public class RestTest {
 
         String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
-        HttpPost addFirstBook = new HttpPost(URL_BOOKS_80);
-        HttpPost addSecondBook = new HttpPost(URL_BOOKS_80);
+        HttpPost addFirstBook = getHttpPost(token,"/books",8084);
+        HttpPost addSecondBook = getHttpPost(token,"/books",8084);
 
         addFirstBook.setEntity(new StringEntity(book.toString()));
         addSecondBook.setEntity(new StringEntity(book2.toString()));
@@ -196,12 +196,9 @@ public class RestTest {
 
     @Test
     public void testCreateBooks() throws IOException {
-
-
-
         JSONObject book = new JSONObject();
-        //book.put("title", TITLE);
-        //book.put("author", NAME);
+        book.put("title", TITLE);
+        book.put("author", NAME);
         book.put("isbn", ISBN);
 
         HttpClient client = HttpClientBuilder.create().build();
@@ -214,8 +211,6 @@ public class RestTest {
         HttpPost httpPost = getHttpPost(token,"/books",8084);
         httpPost.addHeader("content-Type", "application/json");
         httpPost.setEntity(new StringEntity(book.toString()));
-
-
 
         HttpResponse response = client.execute(httpPost);
         System.out.println("Response Code : " + response.getStatusLine().getStatusCode());

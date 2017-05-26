@@ -85,16 +85,12 @@ public class MediaServiceImpl implements MediaService {
             HttpPost addBook = new HttpPost(URL_BOOKS);
 
             addBook.setEntity(new StringEntity(compactJws));
-
-         /*Jwts.parser()
-                    .setSigningKey("secret".getBytes("UTF-8"))
-                    .parseClaimsJws(compactJws).getBody().getSubject());*/
-
-
             addBook.addHeader("content-Type", "application/json");
-            HttpResponse response =client.execute(addBook);
+            HttpResponse createResponse =client.execute(addBook);
 
-            System.out.println(response.getStatusLine().getStatusCode());
+            System.out.println(createResponse.getStatusLine().getStatusCode());
+
+            return createResponse;
 
 
 
