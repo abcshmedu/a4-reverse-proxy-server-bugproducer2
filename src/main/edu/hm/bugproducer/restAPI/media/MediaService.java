@@ -18,7 +18,7 @@ public interface MediaService {
 
     HttpResponse addBook(String token, Book book) throws IOException;
 
-    MediaServiceResult addDisc(Disc disc);
+    HttpResponse addDisc(String token,Disc disc) throws IOException;
 
     HttpEntity getBooks(String token) throws IOException;
 

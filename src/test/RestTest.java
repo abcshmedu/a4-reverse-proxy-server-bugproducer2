@@ -1,4 +1,5 @@
 import edu.hm.bugproducer.JettyStarter;
+import edu.hm.bugproducer.models.Disc;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -172,8 +173,8 @@ public class RestTest {
 
         String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
-        HttpPost addFirstDisc = new HttpPost(URL_DISCS_80);
-        HttpPost addSecondDisc = new HttpPost(URL_DISCS_80);
+        HttpPost addFirstDisc = getHttpPost(token,"/discs",8084);
+        HttpPost addSecondDisc = getHttpPost(token,"/discs",8084);
 
         addFirstDisc.setEntity(new StringEntity(disc.toString()));
         addSecondDisc.setEntity(new StringEntity(disc2.toString()));

@@ -52,13 +52,6 @@ public class MediaServiceImpl implements MediaService {
 
             String jwtString = IOUtils.toString(authResponse.getEntity().getContent());
 
-
-            Jwt jwt = Jwts.parser()
-                    .setSigningKey("secret".getBytes("UTF-8"))
-                    .parseClaimsJws(jwtString);
-
-
-
            String user = Jwts.parser()
                     .setSigningKey("secret".getBytes("UTF-8"))
                     .parseClaimsJws(jwtString).getBody().getSubject();
@@ -81,7 +74,6 @@ public class MediaServiceImpl implements MediaService {
                 e.printStackTrace();
             }
 
-
             HttpPost addBook = new HttpPost(URL_BOOKS);
 
             addBook.setEntity(new StringEntity(compactJws));
@@ -91,18 +83,6 @@ public class MediaServiceImpl implements MediaService {
             System.out.println(createResponse.getStatusLine().getStatusCode());
 
             return createResponse;
-
-
-
-
-
-
-
-
-
-
-
-
 
         }
 
@@ -115,36 +95,51 @@ public class MediaServiceImpl implements MediaService {
 
 
     @Override
-    public MediaServiceResult addDisc(Disc disc) {
-        MediaServiceResult mediaServiceResult = MSR_INTERNAL_SERVER_ERROR;
-        System.out.println(disc.getFsk());
+    public HttpResponse addDisc(String token, Disc disc) throws IOException {
+        System.out.println("addDisc: start");
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet verify = new HttpGet(URLVERIFY + token);
+        HttpResponse authResponse = client.execute(verify);
 
-        if (disc == null) {
-            mediaServiceResult = MSR_NO_CONTENT;
-        } else if (!EAN13CheckDigit.EAN13_CHECK_DIGIT.isValid(disc.getBarcode())) {
-            mediaServiceResult = MSR_BAD_REQUEST;
-        } else if (disc.getBarcode().isEmpty() || disc.getDirector().isEmpty() || disc.getTitle().isEmpty() || disc.getFsk() < 0) {
-            mediaServiceResult = MSR_NO_CONTENT;
-        } else {
-            if (discs.isEmpty()) {
-                mediaServiceResult = MSR_OK;
-                discs.add(disc);
-            } else {
+        if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
 
-                ListIterator<Disc> lir = discs.listIterator();
+            String jwtString = IOUtils.toString(authResponse.getEntity().getContent());
 
-                while (lir.hasNext()) {
-                    if (lir.next().getBarcode().equals(disc.getBarcode())) {
-                        mediaServiceResult = MSR_BAD_REQUEST;
-                    } else {
-                        lir.add(disc);
-                        mediaServiceResult = MSR_OK;
-                    }
-                }
+            String user = Jwts.parser()
+                    .setSigningKey("secret".getBytes("UTF-8"))
+                    .parseClaimsJws(jwtString).getBody().getSubject();
+
+            Map<String, Object> headerClaims = new HashMap();
+            headerClaims.put("type", Header.JWT_TYPE);
+            String compactJws = null;
+
+            ObjectWriter jdisc = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = jdisc.writeValueAsString(disc);
+
+            try {
+                compactJws = Jwts.builder()
+                        .setSubject(user)
+                        .claim("disc",json)
+                        .setHeader(headerClaims)
+                        .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
+                        .compact();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
 
+            HttpPost addDisc = new HttpPost(URL_DISCS);
+
+            addDisc.setEntity(new StringEntity(compactJws));
+            addDisc.addHeader("content-Type", "application/json");
+            HttpResponse createResponse =client.execute(addDisc);
+
+            System.out.println(createResponse.getStatusLine().getStatusCode());
+
+            return createResponse;
+
         }
-        return mediaServiceResult;
+
+        return authResponse;
     }
 
 
@@ -158,6 +153,7 @@ public class MediaServiceImpl implements MediaService {
         if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
             HttpGet request = new HttpGet(URL_BOOKS);
             HttpResponse shareItResponse = client.execute(request);
+
             if (shareItResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
                 return shareItResponse.getEntity();
             }
