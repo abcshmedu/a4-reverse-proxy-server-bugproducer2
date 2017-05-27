@@ -126,8 +126,8 @@ public class RestTest {
 
         String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
-        HttpPost addFirstBook = getHttpPost(token,"/books",8084);
-        HttpPost addSecondBook = getHttpPost(token,"/books",8084);
+        HttpPost addFirstBook = getHttpPost(token, "/books", 8084);
+        HttpPost addSecondBook = getHttpPost(token, "/books", 8084);
 
         addFirstBook.setEntity(new StringEntity(book.toString()));
         addSecondBook.setEntity(new StringEntity(book2.toString()));
@@ -141,7 +141,7 @@ public class RestTest {
         response = client.execute(addSecondBook);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
-        HttpGet request = getHttpGet(token,"/books",8084);
+        HttpGet request = getHttpGet(token, "/books", 8084);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
         System.out.println(EntityUtils.toString(response2.getEntity()));
@@ -171,8 +171,8 @@ public class RestTest {
 
         String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
-        HttpPost addFirstDisc = getHttpPost(token,"/discs",8084);
-        HttpPost addSecondDisc = getHttpPost(token,"/discs",8084);
+        HttpPost addFirstDisc = getHttpPost(token, "/discs", 8084);
+        HttpPost addSecondDisc = getHttpPost(token, "/discs", 8084);
 
         addFirstDisc.setEntity(new StringEntity(disc.toString()));
         addSecondDisc.setEntity(new StringEntity(disc2.toString()));
@@ -191,7 +191,7 @@ public class RestTest {
     }
 
     private HttpResponse getDiscs(HttpClient client, String token) throws IOException {
-        HttpGet request = getHttpGet(token,"/discs",8084);
+        HttpGet request = getHttpGet(token, "/discs", 8084);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
         System.out.println(EntityUtils.toString(response2.getEntity()));
@@ -212,7 +212,7 @@ public class RestTest {
         assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
 
         String token = IOUtils.toString(loginResponse.getEntity().getContent());
-        HttpPost httpPost = getHttpPost(token,"/books",8084);
+        HttpPost httpPost = getHttpPost(token, "/books", 8084);
         httpPost.addHeader("content-Type", "application/json");
         httpPost.setEntity(new StringEntity(book.toString()));
 
@@ -235,7 +235,7 @@ public class RestTest {
         assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
 
         String token = IOUtils.toString(loginResponse.getEntity().getContent());
-        HttpPost httpPost = getHttpPost(token,"/books",8084);
+        HttpPost httpPost = getHttpPost(token, "/books", 8084);
         httpPost.addHeader("content-Type", "application/json");
         httpPost.setEntity(new StringEntity(book.toString()));
 
@@ -247,7 +247,7 @@ public class RestTest {
         jsonObject2.put("title", TITLE_ALT);
         jsonObject2.put("author", NAME_ALT);
         //HttpPut httpPut = new HttpPut(URL_BOOKS + ISBN_ALT);
-        HttpPut httpPut = getHttpPut(token,"/books/"+ISBN,8084);
+        HttpPut httpPut = getHttpPut(token, "/books/" + ISBN, 8084);
         httpPut.setEntity(new StringEntity(jsonObject2.toString()));
         httpPut.addHeader("content-Type", "application/json");
         HttpResponse response2 = client.execute(httpPut);
@@ -271,7 +271,7 @@ public class RestTest {
         assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
 
         String token = IOUtils.toString(loginResponse.getEntity().getContent());
-        HttpPost httpPost = getHttpPost(token,"/discs",8084);
+        HttpPost httpPost = getHttpPost(token, "/discs", 8084);
         httpPost.addHeader("content-Type", "application/json");
         httpPost.setEntity(new StringEntity(disc.toString()));
 
@@ -282,24 +282,155 @@ public class RestTest {
         JSONObject jsonObject2 = new JSONObject();
         jsonObject2.put("fsk", 18);
 
-        HttpPut httpPut = getHttpPut(token,"/discs/"+EAN,8084);
+        HttpPut httpPut = getHttpPut(token, "/discs/" + EAN, 8084);
         httpPut.setEntity(new StringEntity(jsonObject2.toString()));
         httpPut.addHeader("content-Type", "application/json");
         HttpResponse response2 = client.execute(httpPut);
         System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
         assertEquals(200, response2.getStatusLine().getStatusCode());
 
-        getDiscs(client,token);
+        getDiscs(client, token);
 
 
+    }
 
+    @Test
+    public void testGetBook() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        JSONObject book2 = new JSONObject();
+        book2.put("title", TITLE);
+        book2.put("author", NAME);
+        book2.put("isbn", ISBN_ALT);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstBook = getHttpPost(token, "/books", 8084);
+        HttpPost addSecondBook = getHttpPost(token, "/books", 8084);
+
+        addFirstBook.setEntity(new StringEntity(book.toString()));
+        addSecondBook.setEntity(new StringEntity(book2.toString()));
+
+        addFirstBook.addHeader("content-Type", "application/json");
+        addSecondBook.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstBook);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        response = client.execute(addSecondBook);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        HttpGet request = getHttpGet(token, "/books/" + ISBN, 8084);
+        HttpResponse response2 = client.execute(request);
+        System.out.println("Ergebnis:");
+        assertEquals(200, response2.getStatusLine().getStatusCode());
+        assertEquals("{\"title\":\"TestTitle1\",\"author\":\"TestName1\",\"isbn\":\"3446193138\"}", EntityUtils.toString(response2.getEntity()));
+    }
+
+    @Test
+    public void testGetBookWrongISBN() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstBook = getHttpPost(token, "/books", 8084);
+
+        addFirstBook.setEntity(new StringEntity(book.toString()));
+
+        addFirstBook.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstBook);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        HttpGet request = getHttpGet(token, "/books/" + ISBN_ALT, 8084);
+        HttpResponse response2 = client.execute(request);
+        System.out.println("Ergebnis:");
+        assertEquals(404, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testGetDisc() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstBook = getHttpPost(token, "/discs", 8084);
+
+        addFirstBook.setEntity(new StringEntity(disc.toString()));
+        addFirstBook.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstBook);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        HttpGet request = getHttpGet(token, "/discs/" + EAN, 8084);
+        HttpResponse response2 = client.execute(request);
+        System.out.println("Ergebnis:");
+        assertEquals(200, response2.getStatusLine().getStatusCode());
+        assertEquals("{\"title\":\"TestTitle1\",\"barcode\":\"9783815820865\",\"director\":\"TestName1\",\"fsk\":16}", EntityUtils.toString(response2.getEntity()));
+    }
+
+    @Test
+    public void testGetDiscWrongEAN() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstBook = getHttpPost(token, "/discs", 8084);
+
+        addFirstBook.setEntity(new StringEntity(disc.toString()));
+        addFirstBook.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstBook);
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        HttpGet request = getHttpGet(token, "/discs/" + EAN_ALT, 8084);
+        HttpResponse response2 = client.execute(request);
+        System.out.println("Ergebnis:");
+        assertEquals(404, response2.getStatusLine().getStatusCode());
     }
 
     private HttpGet getHttpGet(String token, String path, int port) {
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http").setHost("localhost")
                 .setPort(port)
-                .setPath("/shareit/media/"+token+path);
+                .setPath("/shareit/media/" + token + path);
 
         URI uri = null;
         try {
@@ -314,7 +445,7 @@ public class RestTest {
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http").setHost("localhost")
                 .setPort(port)
-                .setPath("/shareit/media/"+token+path);
+                .setPath("/shareit/media/" + token + path);
 
         URI uri = null;
         try {
@@ -325,12 +456,11 @@ public class RestTest {
         return new HttpPut(uri);
     }
 
-
     private HttpPost getHttpPost(String token, String path, int port) {
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http").setHost("localhost")
                 .setPort(port)
-                .setPath("/shareit/media/"+token+path);
+                .setPath("/shareit/media/" + token + path);
 
         URI uri = null;
         try {

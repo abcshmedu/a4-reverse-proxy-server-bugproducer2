@@ -2,21 +2,16 @@ package edu.hm.bugproducer.restAPI.media;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import edu.hm.bugproducer.Utils.Isbn;
 import edu.hm.bugproducer.models.Book;
 import edu.hm.bugproducer.models.Disc;
 import edu.hm.bugproducer.restAPI.MediaServiceResult;
 import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import javafx.util.Pair;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.validator.routines.checkdigit.EAN13CheckDigit;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -28,7 +23,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import static edu.hm.bugproducer.restAPI.MediaServiceResult.*;
-import static edu.hm.bugproducer.restAPI.MediaServiceResult.MSR_NOT_FOUND;
 import static edu.hm.bugproducer.restAPI.MediaServiceResult.MSR_OK;
 
 @SuppressWarnings("Duplicates")
@@ -53,7 +47,7 @@ public class MediaServiceImpl implements MediaService {
 
             String jwtString = IOUtils.toString(authResponse.getEntity().getContent());
 
-           String user = Jwts.parser()
+            String user = Jwts.parser()
                     .setSigningKey("secret".getBytes("UTF-8"))
                     .parseClaimsJws(jwtString).getBody().getSubject();
 
@@ -67,7 +61,7 @@ public class MediaServiceImpl implements MediaService {
             try {
                 compactJws = Jwts.builder()
                         .setSubject(user)
-                        .claim("book",json)
+                        .claim("book", json)
                         .setHeader(headerClaims)
                         .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
                         .compact();
@@ -79,7 +73,7 @@ public class MediaServiceImpl implements MediaService {
 
             addBook.setEntity(new StringEntity(compactJws));
             addBook.addHeader("content-Type", "application/json");
-            HttpResponse createResponse =client.execute(addBook);
+            HttpResponse createResponse = client.execute(addBook);
 
             System.out.println(createResponse.getStatusLine().getStatusCode());
 
@@ -91,8 +85,6 @@ public class MediaServiceImpl implements MediaService {
 
 
     }
-
-
 
 
     @Override
@@ -120,7 +112,7 @@ public class MediaServiceImpl implements MediaService {
             try {
                 compactJws = Jwts.builder()
                         .setSubject(user)
-                        .claim("disc",json)
+                        .claim("disc", json)
                         .setHeader(headerClaims)
                         .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
                         .compact();
@@ -132,7 +124,7 @@ public class MediaServiceImpl implements MediaService {
 
             addDisc.setEntity(new StringEntity(compactJws));
             addDisc.addHeader("content-Type", "application/json");
-            HttpResponse createResponse =client.execute(addDisc);
+            HttpResponse createResponse = client.execute(addDisc);
 
             System.out.println(createResponse.getStatusLine().getStatusCode());
 
@@ -154,7 +146,7 @@ public class MediaServiceImpl implements MediaService {
         if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
             HttpGet request = new HttpGet(URL_BOOKS);
             HttpResponse shareItResponse = client.execute(request);
-                //toDo change entity to Response
+            //toDo change entity to Response
             if (shareItResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
                 return shareItResponse.getEntity();
             }
@@ -181,35 +173,38 @@ public class MediaServiceImpl implements MediaService {
         return authResponse.getEntity();
     }
 
-    // ------------------
-    //toDo alles ab hier!
-
     @Override
-    public Pair<MediaServiceResult, Book> getBook(String isbn) {
-        Pair<MediaServiceResult, Book> myResult = null;
+    public HttpResponse getBook(String token, String isbn) throws IOException {
 
-        for (Book b : books) {
-            if (b.getIsbn().equals(isbn)) {
-                myResult = new Pair<>(MSR_OK, b);
-            } else {
-                myResult = new Pair<>(MSR_NOT_FOUND, null);
-            }
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet verify = new HttpGet(URLVERIFY + token);
+        HttpResponse authResponse = client.execute(verify);
+
+        if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
+            HttpGet request = new HttpGet(URL_BOOKS + isbn);
+            HttpResponse shareItResponse = client.execute(request);
+            return shareItResponse;
+
         }
-        return myResult;
+        System.out.println("getBook: end");
+        return authResponse;
     }
 
     @Override
-    public Pair<MediaServiceResult, Disc> getDisc(String barcode) {
-        Pair<MediaServiceResult, Disc> myResult = null;
+    public HttpResponse getDisc(String token, String barcode) throws IOException {
 
-        for (Disc d : discs) {
-            if (d.getBarcode().equals(barcode)) {
-                myResult = new Pair<>(MSR_OK, d);
-            } else {
-                myResult = new Pair<>(MSR_NOT_FOUND, null);
-            }
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet verify = new HttpGet(URLVERIFY + token);
+        HttpResponse authResponse = client.execute(verify);
+
+        if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
+            HttpGet request = new HttpGet(URL_DISCS + barcode);
+            HttpResponse shareItResponse = client.execute(request);
+            return shareItResponse;
+
         }
-        return myResult;
+        System.out.println("getDisc: end");
+        return authResponse;
     }
 
 
@@ -240,7 +235,7 @@ public class MediaServiceImpl implements MediaService {
             try {
                 compactJws = Jwts.builder()
                         .setSubject(user)
-                        .claim("book",json)
+                        .claim("book", json)
                         .setHeader(headerClaims)
                         .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
                         .compact();
@@ -248,10 +243,10 @@ public class MediaServiceImpl implements MediaService {
                 e.printStackTrace();
             }
 
-            HttpPut updateBook = new HttpPut(URL_BOOKS+isbn);
+            HttpPut updateBook = new HttpPut(URL_BOOKS + isbn);
             updateBook.setEntity(new StringEntity(compactJws));
             updateBook.addHeader("content-Type", "application/json");
-            HttpResponse shareItResponse =client.execute(updateBook);
+            HttpResponse shareItResponse = client.execute(updateBook);
             System.out.println(shareItResponse.getStatusLine().getStatusCode());
             return shareItResponse;
 
@@ -259,7 +254,6 @@ public class MediaServiceImpl implements MediaService {
         System.out.println("update: end");
         return authResponse;
     }
-
 
 
     @Override
@@ -289,7 +283,7 @@ public class MediaServiceImpl implements MediaService {
             try {
                 compactJws = Jwts.builder()
                         .setSubject(user)
-                        .claim("disc",json)
+                        .claim("disc", json)
                         .setHeader(headerClaims)
                         .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
                         .compact();
@@ -297,10 +291,10 @@ public class MediaServiceImpl implements MediaService {
                 e.printStackTrace();
             }
 
-            HttpPut updateDisc = new HttpPut(URL_DISCS+barcode);
+            HttpPut updateDisc = new HttpPut(URL_DISCS + barcode);
             updateDisc.setEntity(new StringEntity(compactJws));
             updateDisc.addHeader("content-Type", "application/json");
-            HttpResponse updateResponse =client.execute(updateDisc);
+            HttpResponse updateResponse = client.execute(updateDisc);
             System.out.println(updateResponse.getStatusLine().getStatusCode());
 
             return updateResponse;

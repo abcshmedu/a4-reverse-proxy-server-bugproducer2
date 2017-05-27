@@ -58,7 +58,7 @@ public class MediaResource {
     @Path("{token}/discs/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createDiscs(@PathParam("token") String token, Disc disc) throws IOException {
-        HttpResponse result = mediaService.addDisc(token,disc);
+        HttpResponse result = mediaService.addDisc(token, disc);
         return Response
                 .status(result.getStatusLine().getStatusCode())
                 .build();
@@ -68,45 +68,43 @@ public class MediaResource {
     @Path("{token}/books/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createBooks(@PathParam("token") String token, Book book) throws IOException {
-        HttpResponse result = mediaService.addBook(token,book);
-
+        HttpResponse result = mediaService.addBook(token, book);
         return Response
                 .status(result.getStatusLine().getStatusCode())
                 .build();
     }
 
 
-
-   /* @GET
-    @Path("/books/{isbn}")
+    @GET
+    @Path("{token}/books/{isbn}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getBook(@PathParam("isbn") String isbn) {
+    public Response getBook(@PathParam("token") String token, @PathParam("isbn") String isbn) throws IOException {
         System.out.println("getBook");
-        Pair<MediaServiceResult, Book> myResult = mediaService.getBook(isbn);
+        HttpResponse result = mediaService.getBook(token, isbn);
         System.out.println(isbn);
         return Response
-                .status(myResult.getKey().getCode())
-                .entity(myResult.getValue())
+                .status(result.getStatusLine().getStatusCode())
+                .entity(result.getEntity().getContent())
                 .build();
     }
-*/
-    /*@GET
-    @Path("/discs/{barcode}")
+
+    @GET
+    @Path("{token}/discs/{barcode}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDisc(@PathParam("barcode") String barcode) {
-        System.out.println("getBook");
-        Pair<MediaServiceResult, Disc> myResult = mediaService.getDisc(barcode);
+    public Response getDisc(@PathParam("token") String token, @PathParam("barcode") String barcode) throws IOException {
+        System.out.println("getDisc");
+        HttpResponse result = mediaService.getDisc(token, barcode);
         System.out.println(barcode);
         return Response
-                .status(myResult.getKey().getCode())
-                .entity(myResult.getValue())
+                .status(result.getStatusLine().getStatusCode())
+                .entity(result.getEntity().getContent())
                 .build();
-    }*/
+    }
 
     @PUT
     @Path("{token}/books/{isbn}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateBook(@PathParam("token") String token ,@PathParam("isbn") String isbn, Book book) throws IOException {
+    public Response updateBook(@PathParam("token") String token, @PathParam("isbn") String isbn, Book book) throws IOException {
         System.out.println("updateBook: " + isbn);
         System.out.println("Title: " + book.getTitle() + "Author: " + book.getAuthor() + " ISBN: " + book.getIsbn());
         HttpResponse result = mediaService.updateBook(token, isbn, book);
@@ -119,8 +117,8 @@ public class MediaResource {
     @PUT
     @Path("{token}/discs/{barcode}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateDisc(@PathParam("token") String token,@PathParam("barcode") String barcode, Disc disc) throws IOException {
-        HttpResponse result = mediaService.updateDisc(token,barcode, disc);
+    public Response updateDisc(@PathParam("token") String token, @PathParam("barcode") String barcode, Disc disc) throws IOException {
+        HttpResponse result = mediaService.updateDisc(token, barcode, disc);
         System.err.println("RESULT" + result.getStatusLine().getStatusCode());
         return Response
                 .status(result.getStatusLine().getStatusCode())
