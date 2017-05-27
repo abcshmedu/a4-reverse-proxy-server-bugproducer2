@@ -2,7 +2,6 @@ package edu.hm.bugproducer.restAPI.media;
 
 import edu.hm.bugproducer.models.Book;
 import edu.hm.bugproducer.models.Disc;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 
 import java.io.IOException;
@@ -17,9 +16,9 @@ public interface MediaService {
 
     HttpResponse addDisc(String token, Disc disc) throws IOException;
 
-    HttpEntity getBooks(String token) throws IOException;
+    HttpResponse getBooks(String token) throws IOException;
 
-    HttpEntity getDiscs(String token) throws IOException;
+    HttpResponse getDiscs(String token) throws IOException;
 
     HttpResponse getBook(String token, String isbn) throws IOException;
 

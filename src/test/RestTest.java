@@ -62,7 +62,6 @@ public class RestTest {
     private static final String CORRUPTUSER = "Jane Doe";
     private static final String CORRUPTPASSWORD = "offen";
 
-
     private JettyStarter jettyStarter;
 
     @Before
@@ -89,6 +88,21 @@ public class RestTest {
 
         System.out.println("Response Code : "
                 + response.getStatusLine().getStatusCode());
+    }
+
+    private HttpResponse loginWrong() throws IOException {
+        List<NameValuePair> userData = new ArrayList<>();
+
+        userData.add(new BasicNameValuePair("user", USER + "WRONG"));
+        userData.add(new BasicNameValuePair("password", PASSWORD + "WRONG"));
+
+
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpPost loginToWebsite = new HttpPost(URLLOGIN);
+
+        loginToWebsite.setEntity(new UrlEncodedFormEntity(userData));
+        loginToWebsite.addHeader("content-Type", "application/x-www-form-urlencoded");
+        return client.execute(loginToWebsite);
     }
 
     private HttpResponse login() throws IOException {
@@ -168,7 +182,6 @@ public class RestTest {
         HttpResponse loginResponse = login();
 
         assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
-
         String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
         HttpPost addFirstDisc = getHttpPost(token, "/discs", 8084);
@@ -186,16 +199,41 @@ public class RestTest {
         response = client.execute(addSecondDisc);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
-        HttpResponse response2 = getDiscs(client, token);
+        HttpResponse response2 = getDiscs(token);
         assertEquals(200, response2.getStatusLine().getStatusCode());
     }
 
-    private HttpResponse getDiscs(HttpClient client, String token) throws IOException {
-        HttpGet request = getHttpGet(token, "/discs", 8084);
+    @Test
+    public void testGetBooksEmpty() throws IOException {
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpGet request = getHttpGet(token, "/books", 8084);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
         System.out.println(EntityUtils.toString(response2.getEntity()));
-        return response2;
+        assertEquals(200, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testGetDiscsEmpty() throws IOException {
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpResponse response2 = getDiscs(token);
+        assertEquals(200, response2.getStatusLine().getStatusCode());
     }
 
     @Test
@@ -289,7 +327,80 @@ public class RestTest {
         System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
         assertEquals(200, response2.getStatusLine().getStatusCode());
 
-        getDiscs(client, token);
+        getDiscs(token);
+
+
+    }
+
+    @Test
+    public void testUpdateBookWrongISBN() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = getHttpPost(token, "/books", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(book.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("title", TITLE_ALT);
+        jsonObject2.put("author", NAME_ALT);
+        //HttpPut httpPut = new HttpPut(URL_BOOKS + ISBN_ALT);
+        HttpPut httpPut = getHttpPut(token, "/books/" + ISBN_ALT, 8084);
+        httpPut.setEntity(new StringEntity(jsonObject2.toString()));
+        httpPut.addHeader("content-Type", "application/json");
+        HttpResponse response2 = client.execute(httpPut);
+        System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
+        assertEquals(400, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testUpdateDiscWrongEAN() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = getHttpPost(token, "/discs", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(disc.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(200, response.getStatusLine().getStatusCode());
+
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("fsk", 18);
+
+        HttpPut httpPut = getHttpPut(token, "/discs/" + EAN_ALT, 8084);
+        httpPut.setEntity(new StringEntity(jsonObject2.toString()));
+        httpPut.addHeader("content-Type", "application/json");
+        HttpResponse response2 = client.execute(httpPut);
+        System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
+        assertEquals(400, response2.getStatusLine().getStatusCode());
+
+        getDiscs(token);
 
 
     }
@@ -426,6 +537,410 @@ public class RestTest {
         assertEquals(404, response2.getStatusLine().getStatusCode());
     }
 
+    @Test
+    public void testGetBooksWrongToken() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        JSONObject book2 = new JSONObject();
+        book2.put("title", TITLE);
+        book2.put("author", NAME);
+        book2.put("isbn", ISBN_ALT);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstBook = getHttpPost(token, "/books", 8084);
+        HttpPost addSecondBook = getHttpPost(token, "/books", 8084);
+
+        addFirstBook.setEntity(new StringEntity(book.toString()));
+        addSecondBook.setEntity(new StringEntity(book2.toString()));
+
+        addFirstBook.addHeader("content-Type", "application/json");
+        addSecondBook.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstBook);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        response = client.execute(addSecondBook);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        HttpGet request = getHttpGet(token, "/books", 8084);
+        HttpClient client2 = HttpClientBuilder.create().build();
+        HttpResponse response2 = client2.execute(request);
+        System.out.println("Ergebnis:");
+        System.out.println(EntityUtils.toString(response2.getEntity()));
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testGetDiscsWrongToken() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+        JSONObject disc2 = new JSONObject();
+        disc2.put("title", TITLE_ALT);
+        disc2.put("barcode", EAN_ALT);
+        disc2.put("director", NAME_ALT);
+        disc2.put("fsk", 18);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+
+
+        HttpPost addFirstDisc = getHttpPost(token, "/discs", 8084);
+        HttpPost addSecondDisc = getHttpPost(token, "/discs", 8084);
+
+        addFirstDisc.setEntity(new StringEntity(disc.toString()));
+        addSecondDisc.setEntity(new StringEntity(disc2.toString()));
+
+        addFirstDisc.addHeader("content-Type", "application/json");
+        addSecondDisc.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstDisc);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        response = client.execute(addSecondDisc);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        HttpResponse response2 = getDiscs(token);
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testGetBooksEmptyWrongToken() throws IOException {
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpGet request = getHttpGet(token, "/books", 8084);
+        HttpResponse response2 = client.execute(request);
+        System.out.println("Ergebnis:");
+        System.out.println(EntityUtils.toString(response2.getEntity()));
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testGetDiscsEmptyWrongToken() throws IOException {
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpResponse response2 = getDiscs(token);
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testCreateBooksWrongToken() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = getHttpPost(token, "/books", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(book.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(401, response.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testUpdateBookWrongToken() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = getHttpPost(token, "/books", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(book.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("title", TITLE_ALT);
+        jsonObject2.put("author", NAME_ALT);
+        //HttpPut httpPut = new HttpPut(URL_BOOKS + ISBN_ALT);
+        HttpPut httpPut = getHttpPut(token, "/books/" + ISBN, 8084);
+        httpPut.setEntity(new StringEntity(jsonObject2.toString()));
+        httpPut.addHeader("content-Type", "application/json");
+        HttpResponse response2 = client.execute(httpPut);
+        System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testUpdateDiscWrongToken() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = getHttpPost(token, "/discs", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(disc.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("fsk", 18);
+
+        HttpPut httpPut = getHttpPut(token, "/discs/" + EAN, 8084);
+        httpPut.setEntity(new StringEntity(jsonObject2.toString()));
+        httpPut.addHeader("content-Type", "application/json");
+        HttpResponse response2 = client.execute(httpPut);
+        System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+
+        getDiscs(token);
+
+
+    }
+
+    @Test
+    public void testUpdateBookWrongISBNWrongToken() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = getHttpPost(token, "/books", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(book.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("title", TITLE_ALT);
+        jsonObject2.put("author", NAME_ALT);
+        //HttpPut httpPut = new HttpPut(URL_BOOKS + ISBN_ALT);
+        HttpPut httpPut = getHttpPut(token, "/books/" + ISBN_ALT, 8084);
+        httpPut.setEntity(new StringEntity(jsonObject2.toString()));
+        httpPut.addHeader("content-Type", "application/json");
+        HttpResponse response2 = client.execute(httpPut);
+        System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testUpdateDiscWrongEANWrongToken() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = getHttpPost(token, "/discs", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(disc.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("fsk", 18);
+
+        HttpPut httpPut = getHttpPut(token, "/discs/" + EAN_ALT, 8084);
+        httpPut.setEntity(new StringEntity(jsonObject2.toString()));
+        httpPut.addHeader("content-Type", "application/json");
+        HttpResponse response2 = client.execute(httpPut);
+        System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+
+        getDiscs(token);
+
+
+    }
+
+    @Test
+    public void testGetBookWrongToken() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        JSONObject book2 = new JSONObject();
+        book2.put("title", TITLE);
+        book2.put("author", NAME);
+        book2.put("isbn", ISBN_ALT);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstBook = getHttpPost(token, "/books", 8084);
+        HttpPost addSecondBook = getHttpPost(token, "/books", 8084);
+
+        addFirstBook.setEntity(new StringEntity(book.toString()));
+        addSecondBook.setEntity(new StringEntity(book2.toString()));
+
+        addFirstBook.addHeader("content-Type", "application/json");
+        addSecondBook.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstBook);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        response = client.execute(addSecondBook);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        HttpGet request = getHttpGet(token, "/books/" + ISBN, 8084);
+        HttpClient client2 = HttpClientBuilder.create().build();
+        HttpResponse response2 = client2.execute(request);
+        System.out.println("Ergebnis:");
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testGetBookWrongISBNWrongToken() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstBook = getHttpPost(token, "/books", 8084);
+
+        addFirstBook.setEntity(new StringEntity(book.toString()));
+
+        addFirstBook.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstBook);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        HttpGet request = getHttpGet(token, "/books/" + ISBN_ALT, 8084);
+        HttpClient client2 = HttpClientBuilder.create().build();
+        HttpResponse response2 = client2.execute(request);
+        System.out.println("Ergebnis:");
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testGetDiscWrongToken() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstBook = getHttpPost(token, "/discs", 8084);
+
+        addFirstBook.setEntity(new StringEntity(disc.toString()));
+        addFirstBook.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstBook);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        HttpGet request = getHttpGet(token, "/discs/" + EAN, 8084);
+        HttpResponse response2 = client.execute(request);
+        System.out.println("Ergebnis:");
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testGetDiscWrongEANWrongToken() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = loginWrong();
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstBook = getHttpPost(token, "/discs", 8084);
+
+        addFirstBook.setEntity(new StringEntity(disc.toString()));
+        addFirstBook.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstBook);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+
+        HttpGet request = getHttpGet(token, "/discs/" + EAN_ALT, 8084);
+        HttpResponse response2 = client.execute(request);
+        System.out.println("Ergebnis:");
+        assertEquals(401, response2.getStatusLine().getStatusCode());
+    }
+
     private HttpGet getHttpGet(String token, String path, int port) {
         URIBuilder builder = new URIBuilder();
         builder.setScheme("http").setHost("localhost")
@@ -469,6 +984,15 @@ public class RestTest {
             e.printStackTrace();
         }
         return new HttpPost(uri);
+    }
+
+    private HttpResponse getDiscs(String token) throws IOException {
+        HttpClient client2 = HttpClientBuilder.create().build();
+        HttpGet request = getHttpGet(token, "/discs", 8084);
+        HttpResponse response2 = client2.execute(request);
+        System.out.println("Ergebnis:");
+        System.out.println(EntityUtils.toString(response2.getEntity()));
+        return response2;
     }
 
     private void deleteAllLists() throws IOException {

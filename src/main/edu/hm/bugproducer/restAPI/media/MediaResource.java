@@ -31,12 +31,11 @@ public class MediaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBooks(@PathParam("token") String token) throws IOException {
         System.out.println("getBooks");
-        HttpEntity httpEntityBooks = mediaService.getBooks(token);
-        System.err.println("HTTP: " + httpEntityBooks.getContent());
-
+        HttpResponse response = mediaService.getBooks(token);
+        System.err.println("HTTP: " + response);
         return Response
-                .status(RESPONSECODE)
-                .entity(httpEntityBooks.getContent())
+                .status(response.getStatusLine().getStatusCode())
+                .entity(response.getEntity().getContent())
                 .build();
     }
 
@@ -45,12 +44,20 @@ public class MediaResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDiscs(@PathParam("token") String token) throws IOException {
         System.out.println("getDiscs");
-        HttpEntity httpEntityDiscs = mediaService.getDiscs(token);
-        System.err.println("HTTP: " + httpEntityDiscs);
-        return Response
-                .status(RESPONSECODE)
-                .entity(httpEntityDiscs.getContent())
-                .build();
+        HttpResponse response = mediaService.getDiscs(token);
+
+        if (response.getStatusLine().getStatusCode()==MediaServiceResult.MSR_OK.getCode()){
+            return Response
+                    .status(response.getStatusLine().getStatusCode())
+                    .entity(response.getEntity().getContent())
+                    .build();
+        }else{
+            return Response
+                    .status(response.getStatusLine().getStatusCode())
+                    .build();
+        }
+
+
     }
 
 

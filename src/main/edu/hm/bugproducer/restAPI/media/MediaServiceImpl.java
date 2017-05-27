@@ -9,7 +9,6 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -128,16 +127,20 @@ public class MediaServiceImpl implements MediaService {
 
             System.out.println(createResponse.getStatusLine().getStatusCode());
 
+
             return createResponse;
 
         }
+
+        System.out.println("ENDE");
+
 
         return authResponse;
     }
 
 
     @Override
-    public HttpEntity getBooks(String token) throws IOException {
+    public HttpResponse getBooks(String token) throws IOException {
         System.out.println("getBooks: start");
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet verify = new HttpGet(URLVERIFY + token);
@@ -148,15 +151,15 @@ public class MediaServiceImpl implements MediaService {
             HttpResponse shareItResponse = client.execute(request);
             //toDo change entity to Response
             if (shareItResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
-                return shareItResponse.getEntity();
+                return shareItResponse;
             }
         }
         System.out.println("getBooks: end");
-        return authResponse.getEntity();
+        return authResponse;
     }
 
     @Override
-    public HttpEntity getDiscs(String token) throws IOException {
+    public HttpResponse getDiscs(String token) throws IOException {
         System.out.println("getDiscs: start");
         HttpClient client = HttpClientBuilder.create().build();
         HttpGet verify = new HttpGet(URLVERIFY + token);
@@ -166,11 +169,11 @@ public class MediaServiceImpl implements MediaService {
             HttpGet request = new HttpGet(URL_DISCS);
             HttpResponse shareItResponse = client.execute(request);
             if (shareItResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
-                return shareItResponse.getEntity();
+                return shareItResponse;
             }
         }
         System.out.println("getDiscs: end");
-        return authResponse.getEntity();
+        return authResponse;
     }
 
     @Override
