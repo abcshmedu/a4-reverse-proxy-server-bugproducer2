@@ -19,6 +19,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
@@ -153,7 +154,7 @@ public class MediaServiceImpl implements MediaService {
         if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
             HttpGet request = new HttpGet(URL_BOOKS);
             HttpResponse shareItResponse = client.execute(request);
-
+                //toDo change entity to Response
             if (shareItResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
                 return shareItResponse.getEntity();
             }
@@ -211,19 +212,102 @@ public class MediaServiceImpl implements MediaService {
         return myResult;
     }
 
-    //todo Was passiert bei ungültiger ISBN
+
     @Override
-    public MediaServiceResult updateBook(String isbn, Book newBook) {
+    public HttpResponse updateBook(String token, String isbn, Book newBook) throws IOException {
         MediaServiceResult mediaServiceResult = MSR_INTERNAL_SERVER_ERROR;
 
-        return mediaServiceResult;
+        System.out.println("updateBook: start");
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet verify = new HttpGet(URLVERIFY + token);
+        HttpResponse authResponse = client.execute(verify);
+
+        if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
+
+            String jwtString = IOUtils.toString(authResponse.getEntity().getContent());
+
+            String user = Jwts.parser()
+                    .setSigningKey("secret".getBytes("UTF-8"))
+                    .parseClaimsJws(jwtString).getBody().getSubject();
+
+            Map<String, Object> headerClaims = new HashMap();
+            headerClaims.put("type", Header.JWT_TYPE);
+            String compactJws = null;
+
+            ObjectWriter jbook = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = jbook.writeValueAsString(newBook);
+
+            try {
+                compactJws = Jwts.builder()
+                        .setSubject(user)
+                        .claim("book",json)
+                        .setHeader(headerClaims)
+                        .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
+                        .compact();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+            HttpPut updateBook = new HttpPut(URL_BOOKS+isbn);
+            updateBook.setEntity(new StringEntity(compactJws));
+            updateBook.addHeader("content-Type", "application/json");
+            HttpResponse shareItResponse =client.execute(updateBook);
+            System.out.println(shareItResponse.getStatusLine().getStatusCode());
+            return shareItResponse;
+
+        }
+        System.out.println("update: end");
+        return authResponse;
     }
 
+
+
     @Override
-    public MediaServiceResult updateDisc(String barcode, Disc newDisc) {
+    public HttpResponse updateDisc(String token, String barcode, Disc newDisc) throws IOException {
         MediaServiceResult mediaServiceResult = MSR_INTERNAL_SERVER_ERROR;
 
-        return mediaServiceResult;
+        System.out.println("updateBook: start");
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet verify = new HttpGet(URLVERIFY + token);
+        HttpResponse authResponse = client.execute(verify);
+
+        if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
+
+            String jwtString = IOUtils.toString(authResponse.getEntity().getContent());
+
+            String user = Jwts.parser()
+                    .setSigningKey("secret".getBytes("UTF-8"))
+                    .parseClaimsJws(jwtString).getBody().getSubject();
+
+            Map<String, Object> headerClaims = new HashMap();
+            headerClaims.put("type", Header.JWT_TYPE);
+            String compactJws = null;
+
+            ObjectWriter jdisc = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = jdisc.writeValueAsString(newDisc);
+
+            try {
+                compactJws = Jwts.builder()
+                        .setSubject(user)
+                        .claim("disc",json)
+                        .setHeader(headerClaims)
+                        .signWith(SignatureAlgorithm.HS256, "secret".getBytes("UTF-8"))
+                        .compact();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+            HttpPut updateDisc = new HttpPut(URL_DISCS+barcode);
+            updateDisc.setEntity(new StringEntity(compactJws));
+            updateDisc.addHeader("content-Type", "application/json");
+            HttpResponse updateResponse =client.execute(updateDisc);
+            System.out.println(updateResponse.getStatusLine().getStatusCode());
+
+            return updateResponse;
+
+        }
+
+        return authResponse;
     }
 
 

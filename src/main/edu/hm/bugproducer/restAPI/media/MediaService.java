@@ -28,8 +28,8 @@ public interface MediaService {
 
     Pair<MediaServiceResult, Disc> getDisc(String barcode);
 
-    MediaServiceResult updateBook(String isbn, Book book);
+    HttpResponse updateBook(String token, String isbn, Book book) throws IOException;
 
-    MediaServiceResult updateDisc(String barcode, Disc disc);
+    HttpResponse updateDisc(String token, String barcode, Disc disc) throws IOException;
 
 }
