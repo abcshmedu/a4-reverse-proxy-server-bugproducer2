@@ -6,9 +6,7 @@ import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 
-/**
- * Created by Johannes Arzt on 25.04.17.
- */
+
 
 public interface MediaService {
     /**

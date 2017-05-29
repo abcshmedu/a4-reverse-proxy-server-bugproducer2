@@ -303,7 +303,6 @@ public class RestTest {
 
 
         HttpClient client = HttpClientBuilder.create().build();
-
         // LOGIN
         HttpResponse loginResponse = login();
         assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());

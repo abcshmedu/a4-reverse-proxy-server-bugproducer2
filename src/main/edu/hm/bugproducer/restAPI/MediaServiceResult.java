@@ -1,7 +1,5 @@
 package edu.hm.bugproducer.restAPI;
 
-import edu.hm.bugproducer.restAPI.Status;
-
 /**
  * MediaServiceResult.
  * @author Mark Tripolt

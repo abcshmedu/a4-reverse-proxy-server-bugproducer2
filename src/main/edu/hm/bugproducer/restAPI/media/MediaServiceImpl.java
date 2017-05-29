@@ -32,6 +32,7 @@ import static edu.hm.bugproducer.restAPI.MediaServiceResult.MSR_OK;
  * @author Tom Maier
  * @author Patrick Kuntz
  */
+
 @SuppressWarnings("Duplicates")
 public class MediaServiceImpl implements MediaService {
 
@@ -169,7 +170,6 @@ public class MediaServiceImpl implements MediaService {
         if (authResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
             HttpGet request = new HttpGet(URL_BOOKS);
             HttpResponse shareItResponse = client.execute(request);
-            //toDo change entity to Response
             if (shareItResponse.getStatusLine().getStatusCode() == MSR_OK.getCode()) {
                 return shareItResponse;
             }
