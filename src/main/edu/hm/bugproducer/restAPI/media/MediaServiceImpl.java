@@ -24,16 +24,38 @@ import java.util.*;
 import static edu.hm.bugproducer.restAPI.MediaServiceResult.*;
 import static edu.hm.bugproducer.restAPI.MediaServiceResult.MSR_OK;
 
+/**
+ * MediaServiceImpl Class.
+ *
+ * @author Mark Tripolt
+ * @author Johannes Arzt
+ * @author Tom Maier
+ * @author Patrick Kuntz
+ */
 @SuppressWarnings("Duplicates")
 public class MediaServiceImpl implements MediaService {
 
-
+    /**
+     * URL to verify a token.
+     */
     private static final String URLVERIFY = "http://localhost:8082/auth/verify/";
+    /**
+     * URL of books.
+     */
     private static final String URL_BOOKS = "http://localhost:8080/shareit/media/books/";
+    /**
+     * URL of discs.
+     */
     private static final String URL_DISCS = "http://localhost:8080/shareit/media/discs/";
+    /**
+     * ArrayList that contains the books.
+     */
+    private static List<Book> books = new ArrayList<>();
+    /**
+     * ArrayList that contains the discs.
+     */
+    private static List<Disc> discs = new ArrayList<>();
 
-    public static List<Book> books = new ArrayList<>();
-    public static List<Disc> discs = new ArrayList<>();
 
     @Override
     public HttpResponse addBook(String token, Book book) throws IOException {
@@ -84,7 +106,6 @@ public class MediaServiceImpl implements MediaService {
 
 
     }
-
 
     @Override
     public HttpResponse addDisc(String token, Disc disc) throws IOException {
@@ -138,7 +159,6 @@ public class MediaServiceImpl implements MediaService {
         return authResponse;
     }
 
-
     @Override
     public HttpResponse getBooks(String token) throws IOException {
         System.out.println("getBooks: start");
@@ -158,6 +178,7 @@ public class MediaServiceImpl implements MediaService {
         return authResponse;
     }
 
+
     @Override
     public HttpResponse getDiscs(String token) throws IOException {
         System.out.println("getDiscs: start");
@@ -176,6 +197,7 @@ public class MediaServiceImpl implements MediaService {
         return authResponse;
     }
 
+
     @Override
     public HttpResponse getBook(String token, String isbn) throws IOException {
 
@@ -192,6 +214,7 @@ public class MediaServiceImpl implements MediaService {
         System.out.println("getBook: end");
         return authResponse;
     }
+
 
     @Override
     public HttpResponse getDisc(String token, String barcode) throws IOException {
@@ -257,7 +280,6 @@ public class MediaServiceImpl implements MediaService {
         System.out.println("update: end");
         return authResponse;
     }
-
 
     @Override
     public HttpResponse updateDisc(String token, String barcode, Disc newDisc) throws IOException {

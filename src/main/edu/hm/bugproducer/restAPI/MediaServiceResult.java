@@ -2,6 +2,13 @@ package edu.hm.bugproducer.restAPI;
 
 import edu.hm.bugproducer.restAPI.Status;
 
+/**
+ * MediaServiceResult.
+ * @author Mark Tripolt
+ * @author Johannes Arzt
+ * @author Tom Maier
+ * @author Patrick Kuntz
+ */
 public enum MediaServiceResult {
 
     MSR_OK(200, Status.OK),
@@ -24,15 +31,31 @@ public enum MediaServiceResult {
     private Status status;
 
 
+    /**
+     * MediaServiceResult constructor.
+     *
+     * @param code status code
+     * @param status HTTP Status
+     */
     MediaServiceResult(int code, Status status) {
         this.code = code;
         this.status = status;
     }
 
+    /**
+     * getCode method.
+     * gets the code of a status
+     * @return int of status
+     */
     public int getCode() {
         return code;
     }
 
+    /**
+     * getStatus method.
+     * gets the status
+     * @return Status object
+     */
     public Status getStatus() {
         return status;
     }

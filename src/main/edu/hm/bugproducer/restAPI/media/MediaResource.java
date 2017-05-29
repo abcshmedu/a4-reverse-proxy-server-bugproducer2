@@ -4,28 +4,48 @@ package edu.hm.bugproducer.restAPI.media;
 import edu.hm.bugproducer.models.Book;
 import edu.hm.bugproducer.models.Disc;
 import edu.hm.bugproducer.restAPI.MediaServiceResult;
-import javafx.util.Pair;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
+
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.List;
 
+
+
+/**
+ * MediaResource Class.
+ *
+ * @author Mark Tripolt
+ * @author Johannes Arzt
+ * @author Tom Maier
+ * @author Patrick Kuntz
+ */
 @Path("/media")
 public class MediaResource {
+    /**
+     * response code for OK
+     */
     private static final int RESPONSECODE = 200;
-
-
+    /**
+     * mediaService variable for the media service implementation
+     */
     private MediaServiceImpl mediaService = new MediaServiceImpl();
 
+    /**
+     * MediaResource Constructor.
+     */
     public MediaResource() {
     }
 
+    /**
+     * getBooks method.
+     * get the books with the token by using HTTP verb GET
+     * @param token unique string
+     * @return status code with content
+     * @throws IOException by wrong input
+     */
     @GET
     @Path("{token}/books/")
     @Produces(MediaType.APPLICATION_JSON)
@@ -39,6 +59,13 @@ public class MediaResource {
                 .build();
     }
 
+    /**
+     * getDiscs metho.d
+     * get discs with the token by using HTTP verb GET.
+     * @param token unique string
+     * @return status code with content or just a status code
+     * @throws IOException by wrong input
+     */
     @GET
     @Path("{token}/discs/")
     @Produces(MediaType.APPLICATION_JSON)
@@ -46,12 +73,12 @@ public class MediaResource {
         System.out.println("getDiscs");
         HttpResponse response = mediaService.getDiscs(token);
 
-        if (response.getStatusLine().getStatusCode()==MediaServiceResult.MSR_OK.getCode()){
+        if (response.getStatusLine().getStatusCode() == MediaServiceResult.MSR_OK.getCode()) {
             return Response
                     .status(response.getStatusLine().getStatusCode())
                     .entity(response.getEntity().getContent())
                     .build();
-        }else{
+        } else {
             return Response
                     .status(response.getStatusLine().getStatusCode())
                     .build();
@@ -60,7 +87,14 @@ public class MediaResource {
 
     }
 
-
+    /**
+     * createDiscs method.
+     * creating a disc with a token by using the HTTP verb POST.
+     * @param token unique string
+     * @param disc disc object
+     * @return a status code
+     * @throws IOException by wrong input
+     */
     @POST
     @Path("{token}/discs/")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -71,6 +105,14 @@ public class MediaResource {
                 .build();
     }
 
+    /**
+     * createBooks method.
+     * creating a books with a token by using the HTTP verb POST.
+     * @param token unique string
+     * @param book book object
+     * @return a status code
+     * @throws IOException by wrong input
+     */
     @POST
     @Path("{token}/books/")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -82,6 +124,14 @@ public class MediaResource {
     }
 
 
+    /**
+     * getBook method.
+     * gets a book with token and isbn by using the HTTP verb GET.
+     * @param token unique string
+     * @param isbn unique string of a book
+     * @return status code and content
+     * @throws IOException by wrong input
+     */
     @GET
     @Path("{token}/books/{isbn}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -94,7 +144,14 @@ public class MediaResource {
                 .entity(result.getEntity().getContent())
                 .build();
     }
-
+    /**
+     * getDisc method.
+     * gets a disc with token and barcode by using the HTTP verb GET.
+     * @param token unique string
+     * @param barcode unique string of a disc
+     * @return status code and content
+     * @throws IOException by wrong input
+     */
     @GET
     @Path("{token}/discs/{barcode}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -108,6 +165,15 @@ public class MediaResource {
                 .build();
     }
 
+    /**
+     * updateBook method.
+     * updating the book with the isbn and put in the information of book
+     * @param token unique string
+     * @param isbn unique string of book
+     * @param book book object
+     * @return status code
+     * @throws IOException by wrong input
+     */
     @PUT
     @Path("{token}/books/{isbn}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -120,7 +186,15 @@ public class MediaResource {
                 .status(result.getStatusLine().getStatusCode())
                 .build();
     }
-
+    /**
+     * updateDisc method.
+     * updating the disc with the barcode and put in the information of disc
+     * @param token unique string
+     * @param barcode unique string of disc
+     * @param disc disc object
+     * @return status code
+     * @throws IOException by wrong input
+     */
     @PUT
     @Path("{token}/discs/{barcode}")
     @Consumes(MediaType.APPLICATION_JSON)
