@@ -325,7 +325,7 @@ public class MediaServiceImpl implements MediaService {
             return updateResponse;
 
         }
-
+        System.out.println("Disc update: end");
         return authResponse;
     }
 

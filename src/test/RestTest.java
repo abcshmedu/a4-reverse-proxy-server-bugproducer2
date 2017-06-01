@@ -162,6 +162,7 @@ public class RestTest {
         assertEquals(200, response2.getStatusLine().getStatusCode());
     }
 
+
     @Test
     public void testGetDiscs() throws IOException {
         JSONObject disc = new JSONObject();
@@ -441,7 +442,6 @@ public class RestTest {
 
         HttpGet request = getHttpGet(token, "/books/" + ISBN, 8084);
         HttpResponse response2 = client.execute(request);
-        System.out.println("Ergebnis:");
         assertEquals(200, response2.getStatusLine().getStatusCode());
         assertEquals("{\"title\":\"TestTitle1\",\"author\":\"TestName1\",\"isbn\":\"3446193138\"}", EntityUtils.toString(response2.getEntity()));
     }
@@ -472,6 +472,7 @@ public class RestTest {
         HttpGet request = getHttpGet(token, "/books/" + ISBN_ALT, 8084);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
+        System.out.println(EntityUtils.toString(response2.getEntity()));
         assertEquals(404, response2.getStatusLine().getStatusCode());
     }
 
@@ -501,7 +502,6 @@ public class RestTest {
 
         HttpGet request = getHttpGet(token, "/discs/" + EAN, 8084);
         HttpResponse response2 = client.execute(request);
-        System.out.println("Ergebnis:");
         assertEquals(200, response2.getStatusLine().getStatusCode());
         assertEquals("{\"title\":\"TestTitle1\",\"barcode\":\"9783815820865\",\"director\":\"TestName1\",\"fsk\":16}", EntityUtils.toString(response2.getEntity()));
     }
@@ -533,6 +533,7 @@ public class RestTest {
         HttpGet request = getHttpGet(token, "/discs/" + EAN_ALT, 8084);
         HttpResponse response2 = client.execute(request);
         System.out.println("Ergebnis:");
+        System.out.println(EntityUtils.toString(response2.getEntity()));
         assertEquals(404, response2.getStatusLine().getStatusCode());
     }
 
@@ -573,7 +574,7 @@ public class RestTest {
         HttpGet request = getHttpGet(token, "/books", 8084);
         HttpClient client2 = HttpClientBuilder.create().build();
         HttpResponse response2 = client2.execute(request);
-        System.out.println("Ergebnis:");
+        System.out.println("Ergebnis 1123123:");
         System.out.println(EntityUtils.toString(response2.getEntity()));
         assertEquals(401, response2.getStatusLine().getStatusCode());
     }
@@ -730,13 +731,13 @@ public class RestTest {
         JSONObject jsonObject2 = new JSONObject();
         jsonObject2.put("fsk", 18);
 
-        HttpPut httpPut = getHttpPut(token, "/discs/" + EAN, 8084);
+        HttpPut httpPut = getHttpPut(token, "/discs/" + ISBN, 8084);
         httpPut.setEntity(new StringEntity(jsonObject2.toString()));
         httpPut.addHeader("content-Type", "application/json");
         HttpResponse response2 = client.execute(httpPut);
         System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
+        System.out.println(EntityUtils.toString(response2.getEntity()));
         assertEquals(401, response2.getStatusLine().getStatusCode());
-
         getDiscs(token);
 
 
@@ -908,7 +909,6 @@ public class RestTest {
 
         HttpGet request = getHttpGet(token, "/discs/" + EAN, 8084);
         HttpResponse response2 = client.execute(request);
-        System.out.println("Ergebnis:");
         assertEquals(401, response2.getStatusLine().getStatusCode());
     }
 
@@ -936,7 +936,6 @@ public class RestTest {
 
         HttpGet request = getHttpGet(token, "/discs/" + EAN_ALT, 8084);
         HttpResponse response2 = client.execute(request);
-        System.out.println("Ergebnis:");
         assertEquals(401, response2.getStatusLine().getStatusCode());
     }
 

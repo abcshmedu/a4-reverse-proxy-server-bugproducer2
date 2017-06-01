@@ -75,19 +75,16 @@ public class MediaResource {
         System.out.println("getDiscs");
         HttpResponse response = mediaService.getDiscs(token);
 
-        if (response.getStatusLine().getStatusCode() == MediaServiceResult.MSR_OK.getCode()) {
             return Response
                     .status(response.getStatusLine().getStatusCode())
                     .entity(response.getEntity().getContent())
                     .build();
-        } else {
-            return Response
-                    .status(response.getStatusLine().getStatusCode())
-                    .build();
+
+
         }
 
 
-    }
+
 
     /**
      * createDiscs method.
