@@ -551,9 +551,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        String token = "wqwertzuioosdfghj";
 
         HttpPost addFirstBook = getHttpPost(token, "/books", 8084);
         HttpPost addSecondBook = getHttpPost(token, "/books", 8084);
@@ -595,8 +595,8 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
 
 
@@ -624,8 +624,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
+
 
         HttpGet request = getHttpGet(token, "/books", 8084);
         HttpResponse response2 = client.execute(request);
@@ -640,9 +641,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
         HttpResponse response2 = getDiscs(token);
         assertEquals(401, response2.getStatusLine().getStatusCode());
@@ -658,9 +659,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
         HttpPost httpPost = getHttpPost(token, "/books", 8084);
         httpPost.addHeader("content-Type", "application/json");
         httpPost.setEntity(new StringEntity(book.toString()));
@@ -680,9 +681,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
         HttpPost httpPost = getHttpPost(token, "/books", 8084);
         httpPost.addHeader("content-Type", "application/json");
         httpPost.setEntity(new StringEntity(book.toString()));
@@ -715,9 +716,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
         HttpPost httpPost = getHttpPost(token, "/discs", 8084);
         httpPost.addHeader("content-Type", "application/json");
         httpPost.setEntity(new StringEntity(disc.toString()));
@@ -751,9 +752,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
         HttpPost httpPost = getHttpPost(token, "/books", 8084);
         httpPost.addHeader("content-Type", "application/json");
         httpPost.setEntity(new StringEntity(book.toString()));
@@ -786,9 +787,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
         HttpPost httpPost = getHttpPost(token, "/discs", 8084);
         httpPost.addHeader("content-Type", "application/json");
         httpPost.setEntity(new StringEntity(disc.toString()));
@@ -826,10 +827,10 @@ public class RestTest {
 
         HttpClient client = HttpClientBuilder.create().build();
 
-        // LOGIN
-        HttpResponse loginResponse = loginWrong();
+         // LOGIN
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
         HttpPost addFirstBook = getHttpPost(token, "/books", 8084);
         HttpPost addSecondBook = getHttpPost(token, "/books", 8084);
@@ -862,9 +863,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
         HttpPost addFirstBook = getHttpPost(token, "/books", 8084);
 
@@ -893,9 +894,9 @@ public class RestTest {
         HttpClient client = HttpClientBuilder.create().build();
 
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
         HttpPost addFirstBook = getHttpPost(token, "/discs", 8084);
 
@@ -920,11 +921,10 @@ public class RestTest {
         disc.put("fsk", 16);
 
         HttpClient client = HttpClientBuilder.create().build();
-
         // LOGIN
-        HttpResponse loginResponse = loginWrong();
+        //HttpResponse loginResponse = loginWrong();
+        String token = "wqwertzuioosdfghj";
 
-        String token = IOUtils.toString(loginResponse.getEntity().getContent());
 
         HttpPost addFirstBook = getHttpPost(token, "/discs", 8084);
 
