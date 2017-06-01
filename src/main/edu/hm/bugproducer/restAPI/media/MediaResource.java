@@ -48,6 +48,7 @@ public class MediaResource {
      */
     @GET
     @Path("{token}/books/")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBooks(@PathParam("token") String token) throws IOException {
         System.out.println("getBooks");
@@ -68,6 +69,7 @@ public class MediaResource {
      */
     @GET
     @Path("{token}/discs/")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDiscs(@PathParam("token") String token) throws IOException {
         System.out.println("getDiscs");
@@ -98,6 +100,7 @@ public class MediaResource {
     @POST
     @Path("{token}/discs/")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response createDiscs(@PathParam("token") String token, Disc disc) throws IOException {
         HttpResponse result = mediaService.addDisc(token, disc);
         return Response
@@ -116,6 +119,7 @@ public class MediaResource {
     @POST
     @Path("{token}/books/")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response createBooks(@PathParam("token") String token, Book book) throws IOException {
         HttpResponse result = mediaService.addBook(token, book);
         return Response
@@ -134,6 +138,7 @@ public class MediaResource {
      */
     @GET
     @Path("{token}/books/{isbn}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBook(@PathParam("token") String token, @PathParam("isbn") String isbn) throws IOException {
         System.out.println("getBook");
@@ -154,6 +159,7 @@ public class MediaResource {
      */
     @GET
     @Path("{token}/discs/{barcode}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDisc(@PathParam("token") String token, @PathParam("barcode") String barcode) throws IOException {
         System.out.println("getDisc");
@@ -177,6 +183,7 @@ public class MediaResource {
     @PUT
     @Path("{token}/books/{isbn}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response updateBook(@PathParam("token") String token, @PathParam("isbn") String isbn, Book book) throws IOException {
         System.out.println("updateBook: " + isbn);
         System.out.println("Title: " + book.getTitle() + "Author: " + book.getAuthor() + " ISBN: " + book.getIsbn());
@@ -198,6 +205,7 @@ public class MediaResource {
     @PUT
     @Path("{token}/discs/{barcode}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response updateDisc(@PathParam("token") String token, @PathParam("barcode") String barcode, Disc disc) throws IOException {
         HttpResponse result = mediaService.updateDisc(token, barcode, disc);
         System.err.println("RESULT" + result.getStatusLine().getStatusCode());
