@@ -327,7 +327,7 @@ public class RestTest {
     }
 
     @Test
-    public void testUpdateBookWrongISBN() throws IOException {
+    public void testUpdateBookWrongISBN() throws IOException { //non existing ?
         JSONObject book = new JSONObject();
         book.put("title", TITLE);
         book.put("author", NAME);
@@ -361,7 +361,7 @@ public class RestTest {
     }
 
     @Test
-    public void testUpdateDiscWrongEAN() throws IOException {
+    public void testUpdateDiscWrongEAN() throws IOException { //non existing ?
         JSONObject disc = new JSONObject();
         disc.put("title", TITLE);
         disc.put("barcode", EAN);
@@ -445,7 +445,7 @@ public class RestTest {
     }
 
     @Test
-    public void testGetBookWrongISBN() throws IOException {
+    public void testGetBookWrongISBN() throws IOException { //non existing ?
         JSONObject book = new JSONObject();
         book.put("title", TITLE);
         book.put("author", NAME);
