@@ -108,6 +108,7 @@ public class RestTestWrongToken {
         assertEquals(401, response.getStatusLine().getStatusCode());
         System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity())); //nicht so wie wir haben wollen
     }
+
     @Test
     public void testCreateDiscWrongToken() throws IOException {
         JSONObject disc = new JSONObject();
