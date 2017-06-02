@@ -4,7 +4,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -12,10 +11,7 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -71,10 +67,9 @@ public class RestTestWrongToken {
 
 
         HttpGet request = TestUtils.getHttpGet(token, "/books", 8084);
-        HttpResponse response2 = client.execute(request);
-        System.out.println("Ergebnis:");
-        System.out.println(EntityUtils.toString(response2.getEntity()));
-        assertEquals(401, response2.getStatusLine().getStatusCode());
+        HttpResponse response = client.execute(request);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
     }
 
     @Test
@@ -86,9 +81,9 @@ public class RestTestWrongToken {
         //HttpResponse loginResponse = loginWrong();
         String token = "wqwertzuioosdfghj";
 
-
-        HttpResponse response2 = TestUtils.getDiscs(token);
-        assertEquals(401, response2.getStatusLine().getStatusCode());
+        HttpResponse response = TestUtils.getDiscs(token);
+        assertEquals(401, response.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
     }
 
     @Test
@@ -111,6 +106,29 @@ public class RestTestWrongToken {
         HttpResponse response = client.execute(httpPost);
         System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
         assertEquals(401, response.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity())); //nicht so wie wir haben wollen
+    }
+    @Test
+    public void testCreateDiscWrongToken() throws IOException {
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+
+        String token = "wqwertzuioosdfghj";
+
+        HttpPost httpPost = TestUtils.getHttpPost(token, "/discs", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(disc.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(401, response.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity())); //???
     }
 
     @Test
@@ -144,6 +162,7 @@ public class RestTestWrongToken {
         HttpResponse response2 = client.execute(httpPut);
         System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
         assertEquals(401, response2.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity())); //empty ?
     }
 
     @Test
@@ -177,9 +196,9 @@ public class RestTestWrongToken {
         httpPut.addHeader("content-Type", "application/json");
         HttpResponse response2 = client.execute(httpPut);
         System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
-        System.out.println(EntityUtils.toString(response2.getEntity()));
         assertEquals(401, response2.getStatusLine().getStatusCode());
         TestUtils.getDiscs(token);
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity())); //Empty??
 
 
     }
@@ -215,6 +234,8 @@ public class RestTestWrongToken {
         HttpResponse response2 = client.execute(httpPut);
         System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
         assertEquals(401, response2.getStatusLine().getStatusCode());
+        //Empty???
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity()));
     }
 
     @Test
@@ -249,8 +270,8 @@ public class RestTestWrongToken {
         HttpResponse response2 = client.execute(httpPut);
         System.out.println("Response Code : " + response2.getStatusLine().getStatusCode());
         assertEquals(401, response2.getStatusLine().getStatusCode());
-
         TestUtils.getDiscs(token);
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity())); //Empty??
 
 
     }
@@ -294,6 +315,7 @@ public class RestTestWrongToken {
         HttpResponse response2 = client2.execute(request);
         System.out.println("Ergebnis:");
         assertEquals(401, response2.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity()));
     }
 
     @Test
@@ -323,6 +345,7 @@ public class RestTestWrongToken {
         HttpResponse response2 = client2.execute(request);
         System.out.println("Ergebnis:");
         assertEquals(401, response2.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity()));
     }
 
     @Test
@@ -351,6 +374,7 @@ public class RestTestWrongToken {
         HttpGet request = TestUtils.getHttpGet(token, "/discs/" + EAN, 8084);
         HttpResponse response2 = client.execute(request);
         assertEquals(401, response2.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity()));
     }
 
     @Test
@@ -378,6 +402,7 @@ public class RestTestWrongToken {
         HttpGet request = TestUtils.getHttpGet(token, "/discs/" + EAN_ALT, 8084);
         HttpResponse response2 = client.execute(request);
         assertEquals(401, response2.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity()));
     }
 
     @Test
@@ -417,9 +442,10 @@ public class RestTestWrongToken {
         HttpGet request = TestUtils.getHttpGet(token, "/books", 8084);
         HttpClient client2 = HttpClientBuilder.create().build();
         HttpResponse response2 = client2.execute(request);
-        System.out.println("Ergebnis 1123123:");
-        System.out.println(EntityUtils.toString(response2.getEntity()));
+
         assertEquals(401, response2.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity()));
+
     }
 
     @Test
@@ -438,11 +464,8 @@ public class RestTestWrongToken {
 
         HttpClient client = HttpClientBuilder.create().build();
 
-        // LOGIN
-        //HttpResponse loginResponse = loginWrong();
+
         String token = "wqwertzuioosdfghj";
-
-
 
         HttpPost addFirstDisc = TestUtils.getHttpPost(token, "/discs", 8084);
         HttpPost addSecondDisc = TestUtils.getHttpPost(token, "/discs", 8084);
@@ -461,6 +484,8 @@ public class RestTestWrongToken {
 
         HttpResponse response2 = TestUtils.getDiscs(token);
         assertEquals(401, response2.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity()));
+
     }
 
 

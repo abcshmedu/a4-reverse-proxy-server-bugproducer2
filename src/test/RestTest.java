@@ -147,11 +147,14 @@ public class RestTest {
         response = client.execute(addSecondBook);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
+        HttpClient client1 = HttpClientBuilder.create().build();
         HttpGet request = TestUtils.getHttpGet(token, "/books", 8084);
-        HttpResponse response2 = client.execute(request);
+
+        HttpResponse response2 = client1.execute(request);
         System.out.println("Ergebnis:");
         System.out.println(EntityUtils.toString(response2.getEntity()));
         assertEquals(200, response2.getStatusLine().getStatusCode());
+
     }
 
     @Test
@@ -431,8 +434,12 @@ public class RestTest {
         response = client.execute(addSecondBook);
         assertEquals(200, response.getStatusLine().getStatusCode());
 
+
+        HttpClient client1 = HttpClientBuilder.create().build();
+
+
         HttpGet request = TestUtils.getHttpGet(token, "/books/" + ISBN, 8084);
-        HttpResponse response2 = client.execute(request);
+        HttpResponse response2 = client1.execute(request);
         assertEquals(200, response2.getStatusLine().getStatusCode());
         assertEquals("{\"title\":\"TestTitle1\",\"author\":\"TestName1\",\"isbn\":\"3446193138\"}", EntityUtils.toString(response2.getEntity()));
     }

@@ -11,9 +11,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-/**
- * Created by Johdeath on 02.06.2017.
- */
+
+
 public class TestUtils {
     public static HttpGet getHttpGet(String token, String path, int port) {
         URIBuilder builder = new URIBuilder();
@@ -64,8 +63,6 @@ public class TestUtils {
         HttpClient client2 = HttpClientBuilder.create().build();
         HttpGet request = getHttpGet(token, "/discs", 8084);
         HttpResponse response2 = client2.execute(request);
-        System.out.println("Ergebnis:");
-        System.out.println(EntityUtils.toString(response2.getEntity()));
         return response2;
     }
 

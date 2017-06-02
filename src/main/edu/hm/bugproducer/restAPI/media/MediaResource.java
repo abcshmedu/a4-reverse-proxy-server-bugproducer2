@@ -48,7 +48,6 @@ public class MediaResource {
      */
     @GET
     @Path("{token}/books/")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBooks(@PathParam("token") String token) throws IOException {
         System.out.println("getBooks");
@@ -69,7 +68,6 @@ public class MediaResource {
      */
     @GET
     @Path("{token}/discs/")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDiscs(@PathParam("token") String token) throws IOException {
         System.out.println("getDiscs");
@@ -102,6 +100,7 @@ public class MediaResource {
         HttpResponse result = mediaService.addDisc(token, disc);
         return Response
                 .status(result.getStatusLine().getStatusCode())
+                .entity(result.getEntity().getContent())
                 .build();
     }
 
@@ -121,6 +120,7 @@ public class MediaResource {
         HttpResponse result = mediaService.addBook(token, book);
         return Response
                 .status(result.getStatusLine().getStatusCode())
+                .entity(result.getEntity().getContent())
                 .build();
     }
 
@@ -188,6 +188,7 @@ public class MediaResource {
         System.err.println("RESULT" + result.getStatusLine().getStatusCode());
         return Response
                 .status(result.getStatusLine().getStatusCode())
+                .entity(result.getEntity().getContent())
                 .build();
     }
     /**
@@ -208,6 +209,7 @@ public class MediaResource {
         System.err.println("RESULT" + result.getStatusLine().getStatusCode());
         return Response
                 .status(result.getStatusLine().getStatusCode())
+                .entity(result.getEntity().getContent())
                 .build();
     }
 }
