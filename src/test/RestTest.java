@@ -595,6 +595,7 @@ public class RestTest {
         System.out.println(EntityUtils.toString(response2.getEntity()));
         assertEquals(400, response2.getStatusLine().getStatusCode());
     }
+
     @Test
     public void testCreateBookEmpty() throws IOException {
         JSONObject book = new JSONObject();
