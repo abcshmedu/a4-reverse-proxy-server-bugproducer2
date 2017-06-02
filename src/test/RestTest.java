@@ -7,7 +7,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
@@ -18,8 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -253,6 +250,32 @@ public class RestTest {
         System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
         assertEquals(200, response.getStatusLine().getStatusCode());
     }
+
+
+    @Test
+    public void testCreateBookDuplicate() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        HttpClient client = HttpClientBuilder.create().build();
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = TestUtils.getHttpPost(token, "/books", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(book.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(200, response.getStatusLine().getStatusCode());
+        HttpResponse response2 = client.execute(httpPost);
+        assertEquals(400, response2.getStatusLine().getStatusCode());
+    }
+
 
     @Test
     public void testUpdateBook() throws IOException {
@@ -535,7 +558,43 @@ public class RestTest {
         assertEquals(404, response2.getStatusLine().getStatusCode());
     }
 
+    @Test
+    public void testCreateDiscDuplicate() throws IOException{
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
 
+        JSONObject disc2 = new JSONObject();
+        disc2.put("title", TITLE);
+        disc2.put("barcode", EAN);
+        disc2.put("director", NAME);
+        disc2.put("fsk", 16);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstDisc = TestUtils.getHttpPost(token, "/discs", 8084);
+        addFirstDisc.setEntity(new StringEntity(disc.toString()));
+        addFirstDisc.addHeader("content-Type", "application/json");
+
+
+        HttpPost addSecondDisc = TestUtils.getHttpPost(token, "/discs", 8084);
+        addSecondDisc.setEntity(new StringEntity(disc.toString()));
+        addSecondDisc.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstDisc);
+        HttpResponse response2 = client.execute(addSecondDisc);
+
+        System.out.println("Ergebnis:");
+        System.out.println(EntityUtils.toString(response2.getEntity()));
+        assertEquals(400, response2.getStatusLine().getStatusCode());
+    }
     @Test
     public void testCreateBookEmpty() throws IOException {
         JSONObject book = new JSONObject();
