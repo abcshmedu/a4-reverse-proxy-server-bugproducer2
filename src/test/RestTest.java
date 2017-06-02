@@ -7,7 +7,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
@@ -18,8 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -535,7 +532,43 @@ public class RestTest {
         assertEquals(404, response2.getStatusLine().getStatusCode());
     }
 
+    @Test
+    public void testCreateDiscDuplicate() throws IOException{
+        JSONObject disc = new JSONObject();
+        disc.put("title", TITLE);
+        disc.put("barcode", EAN);
+        disc.put("director", NAME);
+        disc.put("fsk", 16);
 
+        JSONObject disc2 = new JSONObject();
+        disc2.put("title", TITLE);
+        disc2.put("barcode", EAN);
+        disc2.put("director", NAME);
+        disc2.put("fsk", 16);
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+
+        HttpPost addFirstDisc = TestUtils.getHttpPost(token, "/discs", 8084);
+        addFirstDisc.setEntity(new StringEntity(disc.toString()));
+        addFirstDisc.addHeader("content-Type", "application/json");
+
+
+        HttpPost addSecondDisc = TestUtils.getHttpPost(token, "/discs", 8084);
+        addSecondDisc.setEntity(new StringEntity(disc.toString()));
+        addSecondDisc.addHeader("content-Type", "application/json");
+
+        HttpResponse response = client.execute(addFirstDisc);
+        HttpResponse response2 = client.execute(addSecondDisc);
+
+        System.out.println("Ergebnis:");
+        System.out.println(EntityUtils.toString(response2.getEntity()));
+        assertEquals(400, response2.getStatusLine().getStatusCode());
+    }
 
 
 
