@@ -29,7 +29,7 @@
 		</init-param>
 		<init-param>
 			<param-name>jersey.config.server.provider.classnames</param-name>
-			<param-value>org.glassfish.jersey.jackson.JacksonFeature</param-value>
+			<param-value>org.glassfish.jersey.jackson.JacksonFeature; edu.hm.bugproducer.Exceptions.JsonExceptionHandler</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>

@@ -106,7 +106,6 @@ public class RestTestCreate {
         httpPost.setEntity(new StringEntity(book.toString()));
 
         HttpResponse response = client.execute(httpPost);
-        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
         System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
         assertEquals(200, response.getStatusLine().getStatusCode());
     }
@@ -131,7 +130,6 @@ public class RestTestCreate {
         httpPost.setEntity(new StringEntity(disc.toString()));
 
         HttpResponse response = client.execute(httpPost);
-        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
         System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
         assertEquals(200, response.getStatusLine().getStatusCode());
     }
@@ -156,7 +154,6 @@ public class RestTestCreate {
         httpPost.setEntity(new StringEntity(disc.toString()));
 
         HttpResponse response = client.execute(httpPost);
-        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
         System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
         assertEquals(400, response.getStatusLine().getStatusCode());
     }
@@ -181,7 +178,6 @@ public class RestTestCreate {
         httpPost.setEntity(new StringEntity(disc.toString()));
 
         HttpResponse response = client.execute(httpPost);
-        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
         System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
         assertEquals(400, response.getStatusLine().getStatusCode());
     }
@@ -205,7 +201,6 @@ public class RestTestCreate {
         httpPost.setEntity(new StringEntity(book.toString()));
 
         HttpResponse response = client.execute(httpPost);
-        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
         System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
         assertEquals(400, response.getStatusLine().getStatusCode());
     }
@@ -228,9 +223,10 @@ public class RestTestCreate {
         httpPost.setEntity(new StringEntity(book.toString()));
 
         HttpResponse response = client.execute(httpPost);
-        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
         assertEquals(200, response.getStatusLine().getStatusCode());
         HttpResponse response2 = client.execute(httpPost);
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity()));
         assertEquals(400, response2.getStatusLine().getStatusCode());
     }
 
@@ -267,8 +263,8 @@ public class RestTestCreate {
         HttpResponse response = client.execute(addFirstDisc);
         HttpResponse response2 = client.execute(addSecondDisc);
 
-        System.out.println("Ergebnis:");
-        System.out.println(EntityUtils.toString(response2.getEntity()));
+        System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
+        System.out.print("Ergebnis: "+EntityUtils.toString(response2.getEntity()));
         assertEquals(400, response2.getStatusLine().getStatusCode());
     }
 
@@ -291,7 +287,7 @@ public class RestTestCreate {
         httpPost.setEntity(new StringEntity(book.toString()));
 
         HttpResponse response = client.execute(httpPost);
-        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        System.out.print("Ergebnis: "+EntityUtils.toString(response.getEntity()));
         assertEquals(400, response.getStatusLine().getStatusCode());
     }
 
