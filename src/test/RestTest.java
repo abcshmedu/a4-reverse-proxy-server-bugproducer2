@@ -251,6 +251,32 @@ public class RestTest {
         assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
+
+    @Test
+    public void testCreateBookDuplicate() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", TITLE);
+        book.put("author", NAME);
+        book.put("isbn", ISBN);
+
+        HttpClient client = HttpClientBuilder.create().build();
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = TestUtils.getHttpPost(token, "/books", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(book.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(200, response.getStatusLine().getStatusCode());
+        HttpResponse response2 = client.execute(httpPost);
+        assertEquals(400, response2.getStatusLine().getStatusCode());
+    }
+
+
     @Test
     public void testUpdateBook() throws IOException {
         JSONObject book = new JSONObject();
