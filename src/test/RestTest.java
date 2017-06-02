@@ -232,7 +232,7 @@ public class RestTest {
     }
 
     @Test
-    public void testCreateBooks() throws IOException {
+    public void testCreateBook() throws IOException {
         JSONObject book = new JSONObject();
         book.put("title", TITLE);
         book.put("author", NAME);
@@ -536,6 +536,28 @@ public class RestTest {
     }
 
 
+    @Test
+    public void testCreateBookEmpty() throws IOException {
+        JSONObject book = new JSONObject();
+        book.put("title", "");
+        book.put("author", "");
+        book.put("isbn", "");
+
+        HttpClient client = HttpClientBuilder.create().build();
+
+        // LOGIN
+        HttpResponse loginResponse = login();
+        assertEquals(MSR_OK.getCode(), loginResponse.getStatusLine().getStatusCode());
+
+        String token = IOUtils.toString(loginResponse.getEntity().getContent());
+        HttpPost httpPost = TestUtils.getHttpPost(token, "/books", 8084);
+        httpPost.addHeader("content-Type", "application/json");
+        httpPost.setEntity(new StringEntity(book.toString()));
+
+        HttpResponse response = client.execute(httpPost);
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+        assertEquals(400, response.getStatusLine().getStatusCode());
+    }
 
 
 
