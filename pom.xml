@@ -3,7 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.hm.reverseproxyserver</groupId>
     <artifactId>ReverseProxyServer</artifactId>
+    <packaging>war</packaging>
     <version>0.1-SNAPSHOT</version>
+    <name>ReverseProxy Maven Webapp</name>
+    <url>http://maven.apache.org</url>
 
     <dependencies>
         <dependency>
